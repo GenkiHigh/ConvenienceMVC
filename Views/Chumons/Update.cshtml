@@ -1,0 +1,106 @@
+﻿@using ConvenienceMVC.Models.Views.Chumons
+@model ChumonViewModel
+@{
+    ViewData["Title"] = "Update";
+    var FirstData = Model.ChumonJisseki.ChumonJissekiMeisais.FirstOrDefault();
+}
+
+<h1>注文実績明細更新</h1>
+
+<form asp-action="Update">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" name="id" value="1"></input>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    <div class="form-group">
+                        <label asp-for="ChumonJisseki.ShiireSakiId" class="control-label"></label>
+                        <input asp-for="ChumonJisseki.ShiireSakiId" class="form-control" tabindex="-1" readonly></input>
+                        <span asp-validation-for="ChumonJisseki.ShiireSakiId" class="text-danger"></span>
+                    </div>
+                </th>
+                <th>
+                    <div class="form-group">
+                        <label asp-for="ChumonJisseki.ChumonId" class="control-label"></label>
+                        <input asp-for="ChumonJisseki.ChumonId" class="form-control" tabindex="-1" readonly></input>
+                        <span asp-validation-for="ChumonJisseki.ChumonId" class="text-danger"></span>
+                    </div>
+                </th>
+                <th>
+                    <div class="form-group">
+                        <label asp-for="ChumonJisseki.ChumonDate" class="control-label"></label>
+                        <input asp-for="ChumonJisseki.ChumonDate" class="form-control" tabindex="-1" readonly />
+                        <span asp-validation-for="ChumonJisseki.ChumonDate" class="text-danger"></span>
+                    </div>
+                </th>
+            </tr>
+        </thead>
+    </table>
+
+    <div class="container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        <label asp-for="@FirstData.ShiireMaster.ShiirePrdId" class="control-label"></label>
+                    </th>
+                    <th>
+                        <label asp-for="@FirstData.ShiireMaster.ShiirePrdName" class="control-label"></label>
+                    </th>
+                    <th>
+                        <label asp-for="@FirstData.ShiireMaster.ShohinMaster.ShohinName" class="control-label"></label>
+                    </th>
+                    <th>
+                        <label asp-for="@FirstData.ChumonSu" class="control-label"></label>
+                    </th>
+                    <th>
+                        <label asp-for="@FirstData.ChumonZan" class="control-label"></label>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.ChumonJisseki.ChumonJissekiMeisais.Count; i++)
+                {
+                    <input asp-for="@Model.ChumonJisseki.ChumonJissekiMeisais[i].ChumonId" type="hidden" />
+                    <input asp-for="@Model.ChumonJisseki.ChumonJissekiMeisais[i].ShiireSakiId" type="hidden" />
+                    <input asp-for="@Model.ChumonJisseki.ChumonJissekiMeisais[i].ShiirePrdId" type="hidden" />
+                    <input asp-for="@Model.ChumonJisseki.ChumonJissekiMeisais[i].ShohinId" type="hidden" />
+                    <tr>
+                        <th>
+                            <input asp-for="@Model.ChumonJisseki.ChumonJissekiMeisais[i].ShiireMaster.ShiirePrdId" class="form-control" tabindex="-1" disabled></input>
+                        </th>
+                        <th>
+                            <input asp-for="@Model.ChumonJisseki.ChumonJissekiMeisais[i].ShiireMaster.ShiirePrdName" class="form-control" tabindex="-1" disabled></input>
+                        </th>
+                        <th>
+                            <input asp-for="@Model.ChumonJisseki.ChumonJissekiMeisais[i].ShiireMaster.ShohinMaster.ShohinName" class="form-control" tabindex="-1" disabled></input>
+                        </th>
+                        <th>
+                            <input asp-for="@Model.ChumonJisseki.ChumonJissekiMeisais[i].ChumonSu" class="form-control" tabindex="1"></input>
+                            <span asp-validation-for="ChumonJisseki.ChumonJissekiMeisais[i].ChumonSu" class="text-danger"></span>
+                        </th>
+                        <th>
+                            <input asp-for="@Model.ChumonJisseki.ChumonJissekiMeisais[i].ChumonZan" class="form-control" tabindex="-1" disabled></input>
+                        </th>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="form-group">
+        <input type="submit" value="Update" class="btn btn-primary" />
+    </div>
+    <p>
+        <div id="remark" class="@(Model.IsNormal??true ? "text-primary" : "text-danger")">
+            <b>@Model.Remark</b>
+        </div>
+    </p>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

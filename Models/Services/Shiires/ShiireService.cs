@@ -123,7 +123,6 @@ namespace ConvenienceMVC.Models.Services.Shiires
 
                 shiireJissekis.Add(shiireJisseki);
             }
-
             return shiireJissekis;
         }
         // 倉庫在庫必要要素インクルード
@@ -141,7 +140,6 @@ namespace ConvenienceMVC.Models.Services.Shiires
 
                 sokoZaikos.Add(sokoZaiko);
             }
-
             return sokoZaikos;
         }
     }

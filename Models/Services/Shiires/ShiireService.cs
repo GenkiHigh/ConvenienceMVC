@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ConvenienceMVC.Models.Services.Shiires
 {
+    // 仕入サービス
     public class ShiireService : IShiireService
     {
         private readonly ConvenienceMVCContext _context;

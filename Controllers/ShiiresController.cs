@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 
 namespace ConvenienceMVC.Controllers
 {
+    // 仕入コントローラー
     public class ShiiresController : Controller
     {
         private readonly ConvenienceMVCContext _context;
@@ -24,6 +25,10 @@ namespace ConvenienceMVC.Controllers
         public IActionResult Index()
         {
             return View();
+        }
+        public IActionResult Menu()
+        {
+            return RedirectToAction("Index", "Menus");
         }
 
         // 仕入実績検索(初期設定)

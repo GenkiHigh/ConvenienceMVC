@@ -2,6 +2,7 @@
 
 namespace ConvenienceMVC.Models.Views.Chumons
 {
+    // 注文実績更新用ViewModel
     public class ChumonViewModel
     {
         public ChumonJisseki ChumonJisseki { get; set; }

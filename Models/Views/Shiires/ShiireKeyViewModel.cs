@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ConvenienceMVC.Models.Views.Shiires
 {
+    // 仕入実績検索用ViewModel
     public class ShiireKeyViewModel
     {
         [Column("chumon_code")]

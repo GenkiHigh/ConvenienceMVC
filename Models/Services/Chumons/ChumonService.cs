@@ -124,12 +124,7 @@ namespace ConvenienceMVC.Models.Services.Chumons
                 .Include(chm => chm.ChumonJissekiMeisais)
                 .ThenInclude(shi => shi.ShiireMaster)
                 .ThenInclude(sho => sho.ShohinMaster)
-                .FirstOrDefault();
-            chumonJisseki = _context.ChumonJisseki
-                .Where(ch => ch.ChumonId == inChumonJisseki.ChumonId && ch.ShiireSakiId == inChumonJisseki.ShiireSakiId)
                 .Include(shs => shs.ShiireSakiMaster)
-                .ThenInclude(shi => shi.ShiireMasters)
-                .ThenInclude(sho => sho.ShohinMaster)
                 .FirstOrDefault();
 
             return chumonJisseki;

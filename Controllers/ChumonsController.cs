@@ -105,20 +105,20 @@ namespace ConvenienceMVC.Controllers
              * 注文実績を更新画面に渡しながら移動
              */
 
-            //1.入力不具合チェック
-            // 入力に不具合があった場合
+            // 入力不具合チェック
             if (!ModelState.IsValid)
             {
                 throw new Exception("Postデータエラー");
             };
             ModelState.Clear();
 
-            //2.注文内容決定
             // 注文実績復元
             GetObject();
+
+            // 注文実績更新
             inChumonViewModel = ChumonService.ChumonCommit(inChumonViewModel);
 
-            //3.注文実績保存
+            // 注文実績保存
             KeepObject();
 
             // 注文実績明細更新に移動

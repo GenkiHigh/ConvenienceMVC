@@ -185,10 +185,12 @@ namespace ConvenienceMVC.Models.Properties.Chumons
                 var config = new MapperConfiguration(cfg => cfg.CreateMap<ChumonJisseki, ChumonJisseki>());
                 var mapper = new Mapper(config);
                 ChumonJisseki chumonJisseki = mapper.Map<ChumonJisseki>(ChumonJisseki);
+
                 chumonJisseki = _context.ChumonJisseki
                     .Where(chu => chu.ChumonId == inChumonJisseki.ChumonId && chu.ShiireSakiId == inChumonJisseki.ShiireSakiId)
                     .Include(chu => chu.ChumonJissekiMeisais)
                     .FirstOrDefault();
+
                 // DBにデータが無い場合
                 if (chumonJisseki == null)
                 {

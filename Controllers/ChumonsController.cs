@@ -34,6 +34,7 @@ namespace ConvenienceMVC.Controllers
         // 総合メニュー移動
         public IActionResult Menu()
         {
+            // メニューコントローラーのIndexに移動する
             return RedirectToAction("Index", "Menus");
         }
 

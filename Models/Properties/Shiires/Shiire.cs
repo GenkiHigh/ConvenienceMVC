@@ -31,7 +31,7 @@ namespace ConvenienceMVC.Models.Properties.Shiires
         public IList<ShiireJisseki> ShiireToiawase(string inChumonId)
         {
             /*
-             * 注文コードを元にDBに対象の仕入実績があるかを判定
+             * 注文コードを基にDBに対象の仕入実績があるかを判定
              * ある場合は対象の仕入実績を戻り値に渡す
              * 無い場合はnullを渡す
              */
@@ -57,7 +57,7 @@ namespace ConvenienceMVC.Models.Properties.Shiires
         public IList<ShiireJisseki> ShiireSakusei(string inChumonId)
         {
             /*
-             * 選択された注文コードを元に仕入実績を登録されている商品数分新規作成する
+             * 選択された注文コードを基に仕入実績を登録されている商品数分新規作成する
              * 実行時の日時を取得、実行時の日付を取得、仕入SEQを設定
              * 仕入先コードを取得、仕入商品コードリスト商品コードリストを取得
              * 納入数を0に設定
@@ -165,7 +165,7 @@ namespace ConvenienceMVC.Models.Properties.Shiires
                 // DBにある場合
                 if (shiireJissekis.Count != 0)
                 {
-                    // 納入数を入力後に同期
+                    // 納入数を入力後のデータと同期
                     for (int i = 0; i < shiireJissekis.Count; i++)
                     {
                         shiireJissekis[i].NonyuSu = inShiireJissekis[i].NonyuSu;
@@ -222,7 +222,10 @@ namespace ConvenienceMVC.Models.Properties.Shiires
         public IList<SokoZaiko> ZaikoSakusei(string inShiireSakiId)
         {
             /*
-             * 
+             * 選択した仕入先コードを基に対応する倉庫在庫を新規作成
+             * 仕入先コードが同じ仕入マスタをDBから取得
+             * 空の倉庫在庫を複数追加
+             * 空の倉庫在庫リストを戻り値に渡す
              */
 
             // 仕入マスタを設定
@@ -230,6 +233,7 @@ namespace ConvenienceMVC.Models.Properties.Shiires
                 .Where(sm => sm.ShiireSakiId == inShiireSakiId)
                 .ToList();
 
+            // 空の倉庫在庫を複数追加
             foreach (var shiire in shiireMastars)
             {
                 SokoZaiko soko = new SokoZaiko()
@@ -246,19 +250,30 @@ namespace ConvenienceMVC.Models.Properties.Shiires
                 SokoZaikos.Add(soko);
             }
 
+            // 空の倉庫在庫リストを渡す
             return SokoZaikos;
         }
 
+        /*
+         * 倉庫在庫更新
+         * inSokoZaikos：変動した在庫数が格納された倉庫在庫リスト
+         */
         public IList<SokoZaiko> ZaikoUpdate(IList<SokoZaiko> inSokoZaikos)
         {
-            // DBに対象の倉庫在庫があったら更新
-            // 無かったら追加
+            /*
+             * 初期表示されていた内容と入力後の内容が変わっているかを判定
+             * 変わっていない場合、初期表示されていた値を戻り値に渡す
+             * 変わっている場合、今回の倉庫在庫が既存データの更新か新規作成かを判定
+             * 更新の場合、既存データの倉庫在庫数を変動させる
+             * 新規作成の場合、複数の倉庫在庫をDBに追加する
+             * 更新後又は追加後の倉庫在庫リストを戻り値に渡す
+             */
 
-            // 前回と比べて在庫数が変化しているかを調査
+            // 前回と比べて在庫数が変化しているかを判定
             bool changeFlag = false;
             for (int i = 0; i < inSokoZaikos.Count; i++)
             {
-                // 在庫数が違う場合
+                // 在庫数が違う場合更新処理に移動
                 if (SokoZaikos[i].SokoZaikoSu != inSokoZaikos[i].SokoZaikoSu)
                 {
                     changeFlag = true;
@@ -266,57 +281,86 @@ namespace ConvenienceMVC.Models.Properties.Shiires
                 }
             }
 
+            // 更新処理
             if (changeFlag)
             {
+                // DBに対象の倉庫在庫があるかを検索
                 IList<SokoZaiko> sokoZaikos = SokoZaikos;
                 sokoZaikos = _context.SokoZaiko
                     .Where(sz => sz.ShiireSakiId == inSokoZaikos.First().ShiireSakiId)
                     .OrderBy(sz => sz.ShohinId)
                     .ToList();
 
-                // 更新
+                // DBにある場合
                 if (sokoZaikos.Count != 0)
                 {
+                    // 倉庫在庫数を入力後のデータと同期
                     for (int i = 0; i < sokoZaikos.Count; i++)
                     {
                         sokoZaikos[i].SokoZaikoSu = inSokoZaikos[i].SokoZaikoSu;
                     }
 
+                    // 倉庫在庫を更新
                     SokoZaikos = sokoZaikos;
                 }
                 // 追加
                 else
                 {
+                    // 複数の倉庫在庫を追加
                     for (int i = 0; i < inSokoZaikos.Count; i++)
                     {
                         _context.SokoZaiko.Add(inSokoZaikos[i]);
                     }
 
-                    // 倉庫在庫履歴を更新
+                    // 倉庫在庫を更新
                     SokoZaikos = inSokoZaikos;
                 }
             }
 
+            // 更新後又は追加後の倉庫在庫リストを渡す
             return SokoZaikos;
         }
 
         /*
          * 注文実績明細問い合わせ
+         * inChumonId：選択された注文コード
          */
         public bool ChumonJissekiMeisaiToiawase(string inChumonId)
         {
+            /*
+             * 注文実績明細が無い場合false(エラー回避)
+             * 選択された注文コードを持つ注文実績明細があるかを判定
+             * 注文されている場合は仕入実績を新規作成する
+             * 注文されていない場合はエラー表示する
+             */
+
+            // 注文実績明細が無い場合エラー
             if (_context.ChumonJissekiMeisai.Count() == 0) return false;
 
+            // 対応する注文実績明細があるかを検索
             var check = _context.ChumonJissekiMeisai.Where(mei => mei.ChumonId == inChumonId).FirstOrDefault();
 
-            // 注文はされている場合true
+            // 注文されている場合仕入実績を新規作成
             if (check != null) return true;
-            // 注文もされていない場合false
+            // 注文されていない場合エラー
             else return false;
         }
 
+        /*
+         * 注文残倉庫在庫数変動
+         * inShiireViewModel：入力された内容が格納された仕入実績、倉庫在庫更新用ViewModel
+         */
         public ShiireViewModel ChumonZanBalance(ShiireViewModel inShiireViewModel)
         {
+            /*
+             * 入力された納入数を基に注文残と倉庫在庫数を変動
+             * 注文残を参照するために対応する注文実績明細を取得
+             * 入力された納入数が注文残以上の場合、納入数を調整
+             * 初期表示されていた納入数と比較して注文残、倉庫在庫数の変動量を設定
+             * 注文残、倉庫在庫数を変動
+             * 変動後の仕入実績、倉庫在庫を格納したViewModelを作成し戻り値に渡す
+             */
+
             // 注文実績明細取得
             var meisai = _context.ChumonJissekiMeisai
                 .Where(mei => mei.ShiireSakiId == inShiireViewModel.ShiireJissekis.First().ShiireSakiId &&
@@ -324,23 +368,24 @@ namespace ConvenienceMVC.Models.Properties.Shiires
                 .OrderBy(mei => mei.ShohinId)
                 .ToList();
 
+            // 注文残、倉庫在庫数を変動
             for (int i = 0; i < inShiireViewModel.ShiireJissekis.Count; i++)
             {
                 // 注文残以上の納入不可
-                decimal nonyuSu = inShiireViewModel.ShiireJissekis[i].NonyuSu - ShiireJissekis[i].NonyuSu <= meisai[i].ChumonZan ?
+                inShiireViewModel.ShiireJissekis[i].NonyuSu = inShiireViewModel.ShiireJissekis[i].NonyuSu - ShiireJissekis[i].NonyuSu <= meisai[i].ChumonZan ?
                     inShiireViewModel.ShiireJissekis[i].NonyuSu : ShiireJissekis[i].NonyuSu + meisai[i].ChumonZan;
 
                 // 前回の納入数と比較して注文残、在庫数の変動量を設定
-                decimal transNum = nonyuSu - ShiireJissekis[i].NonyuSu;
+                decimal transNum = inShiireViewModel.ShiireJissekis[i].NonyuSu - ShiireJissekis[i].NonyuSu;
 
-                // 注文残減少
+                // 注文残変動
                 meisai[i].ChumonZan -= transNum;
-                // 在庫数増加
+                // 在庫数変動
                 inShiireViewModel.SokoZaikos[i].SokoZaikoSu += transNum;
-                // 納入数同期
-                inShiireViewModel.ShiireJissekis[i].NonyuSu = nonyuSu;
             }
 
+            // 変動後の注文実績明細は後ほど行うDB更新で反映される
+            // 変動後の仕入実績、倉庫在庫を格納したViewModelを作成し渡す
             return new ShiireViewModel()
             {
                 ShiireJissekis = inShiireViewModel.ShiireJissekis,

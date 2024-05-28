@@ -10,19 +10,40 @@ namespace ConvenienceMVC.Models.Services.Shiires
     // 仕入サービス
     public class ShiireService : IShiireService
     {
+        // DBコンテキスト
         private readonly ConvenienceMVCContext _context;
+        // 仕入インターフェース
         public IShiire Shiire { get; set; }
 
         // コンストラクタ
         public ShiireService(ConvenienceMVCContext context)
         {
+            // DBコンテキストを設定
             _context = context;
+            // 仕入のインスタンス生成
             Shiire = new Shiire(_context);
         }
 
-        // 仕入実績設定
+        /*
+         * 仕入実績、倉庫在庫設定
+         * inChumonId：選択された注文コード
+         */
         public ShiireViewModel ShiireSetting(string inChumonId)
         {
+            /*
+             * 選択された注文コードを基に対応する仕入実績がDBにあるかを検索
+             * ある場合、見つかった仕入実績を使用
+             * 無い場合、選択された注文コードを基に対応する注文実績明細がDBにあるかを検索
+             * ある場合、仕入実績を新規作成
+             * 無い場合、エラー表示
+             * 
+             * 見つかった仕入実績又は新規作成した仕入実績の仕入先コードを基に倉庫在庫がDBにあるかを検索
+             * ある場合、見つかった倉庫在庫を使用
+             * 無い場合、倉庫在庫を新規作成
+             * 
+             * 作成した又は見つけた仕入実績、倉庫在庫を格納したViewModelを作成し戻り値に渡す
+             */
+
             // 仕入実績を検索
             Shiire.ShiireJissekis = Shiire.ShiireToiawase(inChumonId);
             // 仕入実績を検索して見つからなかった場合
@@ -39,8 +60,7 @@ namespace ConvenienceMVC.Models.Services.Shiires
                 // 注文すらされていない場合
                 else
                 {
-                    // エラー
-                    // 「注文されていません」
+                    // エラー「注文されていません」
                     throw new Exception("注文されていません");
                 }
             }
@@ -54,6 +74,7 @@ namespace ConvenienceMVC.Models.Services.Shiires
                 Shiire.SokoZaikos = Shiire.ZaikoSakusei(Shiire.ShiireJissekis.FirstOrDefault().ShiireSakiId);
             }
 
+            // 作成した又は見つけた仕入実績、倉庫在庫を格納したViewModelを作成し渡す
             return new ShiireViewModel()
             {
                 ShiireJissekis = Shiire.ShiireJissekis,
@@ -63,13 +84,29 @@ namespace ConvenienceMVC.Models.Services.Shiires
             };
         }
 
-        // 仕入実績内容決定
+        /*
+         * 仕入実績、倉庫在庫更新
+         * inShiireViewModel：入力したデータを格納したViewModel
+         */
         public ShiireViewModel ShiireCommit(ShiireViewModel inShiireViewModel)
         {
+            /*
+             * 初期表示されていた内容と入力後の内容を比較して変更されたかを判定　@①
+             * 入力された納入数に応じて注文残、倉庫在庫数を変動
+             * 仕入実績を更新
+             * 倉庫在庫を更新
+             * DBを更新
+             * 仕入実績に対応する要素をインクルード
+             * 倉庫在庫に対応する要素をインクルード
+             * @①で変更されていた場合、更新完了を表示するようにする
+             * 更新した仕入実績、倉庫在庫を格納したViewModelを作成し戻り値に渡す
+             */
+
             // 内容が更新されたか判断
             bool changeFlag = false;
             for (int i = 0; i < inShiireViewModel.ShiireJissekis.Count; i++)
             {
+                // 納入数が変更されている場合、更新完了を画面で表示するようにする(下記参照)
                 if (Shiire.ShiireJissekis[i].NonyuSu != inShiireViewModel.ShiireJissekis[i].NonyuSu)
                 {
                     changeFlag = true;
@@ -77,7 +114,7 @@ namespace ConvenienceMVC.Models.Services.Shiires
                 }
             }
 
-            // 納入数に応じて注文数減少、在庫数増加
+            // 納入数に応じて注文残、倉庫在庫数変動
             inShiireViewModel = Shiire.ChumonZanBalance(inShiireViewModel);
             // 仕入実績更新
             inShiireViewModel.ShiireJissekis = Shiire.ShiireUpdate(inShiireViewModel.ShiireJissekis);
@@ -86,9 +123,9 @@ namespace ConvenienceMVC.Models.Services.Shiires
             // DB更新
             _context.SaveChanges();
 
-            // 仕入実績必要要素インクルード
+            // 仕入実績対応要素インクルード
             inShiireViewModel.ShiireJissekis = IncludeShiireJissekis(inShiireViewModel.ShiireJissekis);
-            // 倉庫在庫必要要素インクルード
+            // 倉庫在庫対応要素インクルード
             inShiireViewModel.SokoZaikos = IncludeSokoZaikos(inShiireViewModel.SokoZaikos);
 
             // 仕入実績更新
@@ -96,6 +133,8 @@ namespace ConvenienceMVC.Models.Services.Shiires
             // 倉庫在庫更新
             Shiire.SokoZaikos = inShiireViewModel.SokoZaikos;
 
+            // 入力前後で納入数が変動していた場合、更新完了を表示するようにする
+            // 更新後の仕入実績、倉庫在庫を格納したViewModelを作成し渡す
             return new ShiireViewModel()
             {
                 ShiireJissekis = inShiireViewModel.ShiireJissekis,
@@ -105,12 +144,23 @@ namespace ConvenienceMVC.Models.Services.Shiires
             };
         }
 
-        // 仕入実績必要要素インクルード
+        /*
+         * 仕入実績対応要素インクルード
+         * inShiireJissekis：更新後の仕入実績
+         */
         private IList<ShiireJisseki>? IncludeShiireJissekis(IList<ShiireJisseki>? inShiireJissekis)
         {
+            /*
+             * 更新後の仕入実績に対応する要素をインクルード
+             * インクルード後の仕入実績を戻り値に渡す
+             */
+
+            // インクルード結果を格納するリストを作成
             List<ShiireJisseki> shiireJissekis = new List<ShiireJisseki>();
+            // 対応する要素をインクルードし、リストに追加
             foreach (var shiire in inShiireJissekis)
             {
+                // 対応する要素をインクルード
                 ShiireJisseki shiireJisseki = _context.ShiireJisseki
                     .Where(sj => sj.ChumonId == shiire.ChumonId && sj.ShiireDate == shiire.ShiireDate &&
                     sj.SeqByShiireDate == shiire.SeqByShiireDate && sj.ShiireSakiId == shiire.ShiireSakiId &&
@@ -122,16 +172,30 @@ namespace ConvenienceMVC.Models.Services.Shiires
                     .ThenInclude(sm => sm.ShohinMaster)
                     .FirstOrDefault();
 
+                // リストに追加
                 shiireJissekis.Add(shiireJisseki);
             }
+
+            // インクルード後の仕入実績を渡す
             return shiireJissekis;
         }
-        // 倉庫在庫必要要素インクルード
+        /*
+         * 倉庫在庫対応要素インクルード
+         * inSokoZaikos：更新後の倉庫在庫
+         */
         private IList<SokoZaiko>? IncludeSokoZaikos(IList<SokoZaiko>? inSokoZaikos)
         {
+            /*
+             * 更新後の倉庫在庫に対応する要素をインクルード
+             * インクルード後の倉庫在庫を戻り値に渡す
+             */
+
+            // インクルード結果を格納するリストを作成
             List<SokoZaiko> sokoZaikos = new List<SokoZaiko>();
+            // 対応する要素をインクルードし、リストに追加
             foreach (var zaiko in inSokoZaikos)
             {
+                // 対応する要素をインクルード
                 SokoZaiko sokoZaiko = _context.SokoZaiko
                     .Where(sk => sk.ShiireSakiId == zaiko.ShiireSakiId && sk.ShiirePrdId == zaiko.ShiirePrdId &&
                     sk.ShohinId == zaiko.ShohinId)
@@ -139,8 +203,11 @@ namespace ConvenienceMVC.Models.Services.Shiires
                     .ThenInclude(sm => sm.ShohinMaster)
                     .FirstOrDefault();
 
+                // リストに追加
                 sokoZaikos.Add(sokoZaiko);
             }
+
+            // インクルード後の倉庫在庫を渡す
             return sokoZaikos;
         }
     }

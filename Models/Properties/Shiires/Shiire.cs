@@ -1,4 +1,5 @@
-﻿using ConvenienceMVC.Models.Entities.Shiires;
+﻿using AutoMapper;
+using ConvenienceMVC.Models.Entities.Shiires;
 using ConvenienceMVC.Models.Interfaces.Shiires;
 using ConvenienceMVC.Models.Views.Shiires;
 using ConvenienceMVC_Context;
@@ -155,7 +156,10 @@ namespace ConvenienceMVC.Models.Properties.Shiires
             if (changeFlag)
             {
                 // DBに対象の仕入実績があるかを検索
-                IList<ShiireJisseki> shiireJissekis = ShiireJissekis;
+                var config = new MapperConfiguration(cfg => cfg.CreateMap<IList<ShiireJisseki>, IList<ShiireJisseki>>());
+                var mapper = new Mapper(config);
+                IList<ShiireJisseki> shiireJissekis = mapper.Map<IList<ShiireJisseki>>(ShiireJissekis);
+
                 shiireJissekis = _context.ShiireJisseki
                     .Where(sj => sj.ShiireSakiId == inShiireJissekis.First().ShiireSakiId &&
                     sj.ChumonId == inShiireJissekis.First().ChumonId)
@@ -285,7 +289,10 @@ namespace ConvenienceMVC.Models.Properties.Shiires
             if (changeFlag)
             {
                 // DBに対象の倉庫在庫があるかを検索
-                IList<SokoZaiko> sokoZaikos = SokoZaikos;
+                var config = new MapperConfiguration(cfg => cfg.CreateMap<IList<SokoZaiko>, IList<SokoZaiko>>());
+                var mapper = new Mapper(config);
+                IList<SokoZaiko> sokoZaikos = mapper.Map<IList<SokoZaiko>>(SokoZaikos);
+
                 sokoZaikos = _context.SokoZaiko
                     .Where(sz => sz.ShiireSakiId == inSokoZaikos.First().ShiireSakiId)
                     .OrderBy(sz => sz.ShohinId)

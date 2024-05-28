@@ -1,4 +1,5 @@
-﻿using ConvenienceMVC.Models.Entities.Chumons;
+﻿using AutoMapper;
+using ConvenienceMVC.Models.Entities.Chumons;
 using ConvenienceMVC.Models.Interfaces.Chumons;
 using ConvenienceMVC_Context;
 using Microsoft.EntityFrameworkCore;
@@ -131,7 +132,10 @@ namespace ConvenienceMVC.Models.Properties.Chumons
             if (changeFlag)
             {
                 // その注文実績が既にある場合更新、新規の場合追加
-                var chumonJisseki = ChumonJisseki;
+                var config = new MapperConfiguration(cfg => cfg.CreateMap<ChumonJisseki, ChumonJisseki>());
+                var mapper = new Mapper(config);
+                ChumonJisseki chumonJisseki = mapper.Map<ChumonJisseki>(ChumonJisseki);
+
                 chumonJisseki = _context.ChumonJisseki
                     .Where(chu => chu.ChumonId == inChumonJisseki.ChumonId && chu.ShiireSakiId == inChumonJisseki.ShiireSakiId)
                     .Include(chu => chu.ChumonJissekiMeisais)
@@ -178,7 +182,9 @@ namespace ConvenienceMVC.Models.Properties.Chumons
             else
             {
                 // 初期表示と内容が同じでありDBにデータがない場合、データ追加
-                var chumonJisseki = ChumonJisseki;
+                var config = new MapperConfiguration(cfg => cfg.CreateMap<ChumonJisseki, ChumonJisseki>());
+                var mapper = new Mapper(config);
+                ChumonJisseki chumonJisseki = mapper.Map<ChumonJisseki>(ChumonJisseki);
                 chumonJisseki = _context.ChumonJisseki
                     .Where(chu => chu.ChumonId == inChumonJisseki.ChumonId && chu.ShiireSakiId == inChumonJisseki.ShiireSakiId)
                     .Include(chu => chu.ChumonJissekiMeisais)

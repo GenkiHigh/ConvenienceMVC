@@ -4,10 +4,11 @@
     ViewData["Title"] = "Update";
     var FirstData = Model.ChumonJisseki.ChumonJissekiMeisais.FirstOrDefault();
 }
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 
 <h1>注文実績明細更新</h1>
 
-<form asp-action="Update">
+<form asp-action="Update" id="updateForm">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" name="id" value="1"></input>
     <table class="table">
@@ -90,7 +91,7 @@
     </div>
 
     <div class="form-group">
-        <input type="submit" value="Update" class="btn btn-primary" />
+        <input type="submit" value="Update" class="btn btn-primary" id="updateButton" />
     </div>
     <p>
         <div id="remark" class="@(Model.IsNormal??true ? "text-primary" : "text-danger")">
@@ -101,6 +102,15 @@
 <p>
     <a asp-action="Menu">メニューに戻る</a>
 </p>
+
+<script>
+    $(document).ready(function () {
+        $('#updateForm').submit(function (event) {
+            $('#updateButton').prop('disabled', true);
+            $(this).submit();
+        });
+    });
+</script>
 
 @section Scripts {
     @{

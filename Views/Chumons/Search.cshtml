@@ -3,12 +3,13 @@
 @{
     ViewData["Title"] = "Search";
 }
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 
 <h1>注文実績検索</h1>
 
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Search">
+        <form asp-action="Search" id="searchForm">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="ShiireSakiId" class="control-label"></label>
@@ -23,7 +24,7 @@
                 <span asp-validation-for="ChumonDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Search" class="btn btn-primary" />
+                <input type="submit" value="Search" class="btn btn-primary" id="searchButton" />
             </div>
         </form>
     </div>
@@ -32,6 +33,15 @@
 <div>
     <a asp-action="Index">Back to Menu</a>
 </div>
+
+<script>
+    $(document).ready(function () {
+        $('#searchForm').submit(function (event) {
+            $("#searchButton").prop("disabled", true);
+            $(this).submit();
+        });
+    });
+</script>
 
 @section Scripts {
     @{

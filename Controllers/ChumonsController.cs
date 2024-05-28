@@ -53,6 +53,13 @@ namespace ConvenienceMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Search(ChumonKeyViewModel inChumonKeyViewModel)
         {
+            /*
+             * 不具合なく入力されたかを判定
+             * 選択された仕入先コード、注文日を基に注文実績を検索し検索結果を受け取る
+             * 受け取った注文実績を保存
+             * 注文実績を更新画面に渡しながら移動
+             */
+
             //1.入力不具合チェック
             // 入力に不具合があった場合
             if (!ModelState.IsValid)
@@ -90,6 +97,14 @@ namespace ConvenienceMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Update(int id, ChumonViewModel inChumonViewModel)
         {
+            /*
+             * 不具合なく入力されたかを判定
+             * 保存したデータを復元
+             * 注文実績を更新し、更新後のデータを受け取る
+             * 更新後のデータを保存
+             * 注文実績を更新画面に渡しながら移動
+             */
+
             //1.入力不具合チェック
             // 入力に不具合があった場合
             if (!ModelState.IsValid)
@@ -113,13 +128,18 @@ namespace ConvenienceMVC.Controllers
         // 注文実績検索用ViewModel設定
         private ChumonKeyViewModel SetChumonKeyViewModel()
         {
+            /*
+             * 仕入先コードをまとめたリストを作成
+             * 仕入先コードリストを格納したViewModelを作成し戻り値に渡す
+             */
+
             // 仕入先コードリストを設定
             var list = _context.ShiireSakiMaster.OrderBy(s => s.ShiireSakiId).Select(s => new SelectListItem
             {
                 Value = s.ShiireSakiId,
                 Text = s.ShiireSakiId + " " + s.ShiireSakiKaisya
             }).ToList();
-            // 注文実績検索用ViewModelを作成し渡す
+            // 仕入先コードリストを格納したViewModelを作成し渡す
             return new ChumonKeyViewModel()
             {
                 ShiireSakiId = null,

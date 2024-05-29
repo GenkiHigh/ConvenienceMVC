@@ -9,7 +9,7 @@
 
 <h1>仕入実績作成</h1>
 
-<form asp-action="Update" id="updateForm">
+<form asp-action="Update" id="notBarrageForm">
     @Html.AntiForgeryToken()
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" name="id" value="1"></input>
@@ -104,7 +104,7 @@
         </table>
     </div>
     <div class="form-group">
-        <input type="submit" value="Update" class="btn btn-primary" id="updateButton" />
+        <input type="submit" value="Update" class="btn btn-primary" id="notBarrageButton" />
     </div>
     <p>
         <div id="remark" class="@(Model.IsNormal??true ? "text-primary" : "text-danger")">
@@ -116,14 +116,7 @@
     <a asp-action="Menu">メニューに戻る</a>
 </p>
 
-<script>
-    $(document).ready(function () {
-        $('#updateForm').submit(function (event) {
-            $('#updateButton').prop('disabled', true);
-            $(this).submit();
-        });
-    });
-</script>
+<script src="/js/NotBarrage.js"></script>
 
 @section Scripts {
     @{

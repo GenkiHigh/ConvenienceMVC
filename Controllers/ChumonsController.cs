@@ -60,19 +60,17 @@ namespace ConvenienceMVC.Controllers
              * 注文実績を更新画面に渡しながら移動
              */
 
-            //1.入力不具合チェック
-            // 入力に不具合があった場合
+            // 入力不具合チェック
             if (!ModelState.IsValid)
             {
                 throw new InvalidOperationException("Postデータエラー");
             }
 
-            //2.注文実績検索(既に注文されたかを問い合わせる)
-            // 注文セッティング
+            // 注文実績検索(既に注文されたかを問い合わせる)
             ChumonViewModel chumonViewModel = ChumonService.ChumonSetting(
                 inChumonKeyViewModel.ShiireSakiId, DateOnly.FromDateTime(inChumonKeyViewModel.ChumonDate));
 
-            //3.注文実績保存
+            // 注文実績保存
             KeepObject();
 
             // 注文実績明細更新に移動

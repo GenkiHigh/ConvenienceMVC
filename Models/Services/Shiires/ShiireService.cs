@@ -64,6 +64,7 @@ namespace ConvenienceMVC.Models.Services.Shiires
                     throw new Exception("注文されていません");
                 }
             }
+            Shiire.ShiireJissekis = Shiire.ShiireJissekis.OrderBy(sj => sj.ShohinId).ToList();
 
             // 倉庫在庫を検索
             Shiire.SokoZaikos = Shiire.ZaikoToiawase(Shiire.ShiireJissekis.FirstOrDefault().ShiireSakiId);
@@ -73,6 +74,7 @@ namespace ConvenienceMVC.Models.Services.Shiires
                 // 倉庫在庫新規作成
                 Shiire.SokoZaikos = Shiire.ZaikoSakusei(Shiire.ShiireJissekis.FirstOrDefault().ShiireSakiId);
             }
+            Shiire.SokoZaikos = Shiire.SokoZaikos.OrderBy(sok => sok.ShohinId).ToList();
 
             // 作成した又は見つけた仕入実績、倉庫在庫を格納したViewModelを作成し渡す
             return new ShiireViewModel()
@@ -132,6 +134,9 @@ namespace ConvenienceMVC.Models.Services.Shiires
             Shiire.ShiireJissekis = inShiireViewModel.ShiireJissekis;
             // 倉庫在庫更新
             Shiire.SokoZaikos = inShiireViewModel.SokoZaikos;
+
+            Shiire.ShiireJissekis = Shiire.ShiireJissekis.OrderBy(sj => sj.ShohinId).ToList();
+            Shiire.SokoZaikos = Shiire.SokoZaikos.OrderBy(sok => sok.ShohinId).ToList();
 
             // 入力前後で納入数が変動していた場合、更新完了を表示するようにする
             // 更新後の仕入実績、倉庫在庫を格納したViewModelを作成し渡す

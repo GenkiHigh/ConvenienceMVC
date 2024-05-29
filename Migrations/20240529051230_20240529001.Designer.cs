@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ConvenienceMVC.Migrations
 {
     [DbContext(typeof(ConvenienceMVCContext))]
-    [Migration("20240524060146_20240524001")]
-    partial class _20240524001
+    [Migration("20240529051230_20240529001")]
+    partial class _20240529001
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -245,7 +245,7 @@ namespace ConvenienceMVC.Migrations
                         .HasColumnName("nonyu_su");
 
                     b.Property<DateTime>("ShiireDateTime")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("shiire_datetime");
 
                     b.Property<string>("ShohinId")

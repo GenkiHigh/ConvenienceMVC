@@ -242,7 +242,7 @@ namespace ConvenienceMVC.Migrations
                         .HasColumnName("nonyu_su");
 
                     b.Property<DateTime>("ShiireDateTime")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("shiire_datetime");
 
                     b.Property<string>("ShohinId")

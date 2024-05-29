@@ -17,8 +17,8 @@
                 <select asp-for="ShiireSakiId" asp-items="@Model.ShiireSakiIdList" class="form-control">
                     <option value="">-- 選択してください --</option>
                 </select>
+                <span asp-validation-for="ShiireSakiId" class="text-danger"></span>
             </div>
-            <span asp-validation-for="ShiireSakiId" class="text-danger"></span>
             <div class="form-group">
                 <label asp-for="ChumonDate" class="control-label"></label>
                 <input asp-for="ChumonDate" class="form-control" type="date" />
@@ -29,10 +29,6 @@
             </div>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to Menu</a>
 </div>
 
 <script src="/js/NotBarrage.js"></script>

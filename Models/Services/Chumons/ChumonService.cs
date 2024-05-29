@@ -49,6 +49,11 @@ namespace ConvenienceMVC.Models.Services.Chumons
             {
                 // 注文実績に必要な要素をインクルード
                 chumonJisseki = IncludeChumonJisseki(chumonJisseki);
+
+                var meisais = _context.ChumonJissekiMeisai.Where(mei => mei.ChumonId == chumonJisseki.ChumonId)
+                    .OrderBy(mei => mei.ShohinId).ToList();
+
+                chumonJisseki.ChumonJissekiMeisais = meisais;
             }
             // 指定した注文実績が存在していない場合
             else
@@ -126,6 +131,10 @@ namespace ConvenienceMVC.Models.Services.Chumons
                 .ThenInclude(sho => sho.ShohinMaster)
                 .Include(shs => shs.ShiireSakiMaster)
                 .FirstOrDefault();
+
+            chumonJisseki.ChumonJissekiMeisais = _context.ChumonJissekiMeisai
+                .Where(mei => mei.ChumonId == chumonJisseki.ChumonId)
+                .OrderBy(mei => mei.ShohinId).ToList();
 
             return chumonJisseki;
         }

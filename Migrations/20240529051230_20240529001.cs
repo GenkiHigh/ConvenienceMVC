@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ConvenienceMVC.Migrations
 {
     /// <inheritdoc />
-    public partial class _20240524001 : Migration
+    public partial class _20240529001 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -151,7 +151,7 @@ namespace ConvenienceMVC.Migrations
                     seq_by_shiiredate = table.Column<long>(type: "bigint", nullable: false),
                     shiire_saki_code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
                     shiire_prd_code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
-                    shiire_datetime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    shiire_datetime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     shohin_code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
                     nonyu_su = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false)
                 },

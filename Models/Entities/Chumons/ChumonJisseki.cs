@@ -25,6 +25,9 @@ namespace ConvenienceMVC.Models.Entities.Chumons
         [DisplayName("注文日")]
         public DateOnly? ChumonDate { get; set; }
 
+        [Timestamp]
+        public uint Version { get; set; }
+
         [ForeignKey(nameof(ShiireSakiId))]
         public virtual ShiireSakiMaster? ShiireSakiMaster { get; set; }
 

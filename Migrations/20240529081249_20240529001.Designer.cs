@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ConvenienceMVC.Migrations
 {
     [DbContext(typeof(ConvenienceMVCContext))]
-    [Migration("20240529051230_20240529001")]
+    [Migration("20240529081249_20240529001")]
     partial class _20240529001
     {
         /// <inheritdoc />
@@ -40,6 +40,12 @@ namespace ConvenienceMVC.Migrations
                     b.Property<DateOnly?>("ChumonDate")
                         .HasColumnType("date")
                         .HasColumnName("chumon_date");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.HasKey("ChumonId", "ShiireSakiId");
 
@@ -79,6 +85,12 @@ namespace ConvenienceMVC.Migrations
                         .HasPrecision(10, 2)
                         .HasColumnType("numeric(10,2)")
                         .HasColumnName("chumon_zan");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.HasKey("ChumonId", "ShiireSakiId", "ShiirePrdId", "ShohinId");
 

@@ -49,7 +49,8 @@ namespace ConvenienceMVC.Migrations
                 {
                     chumon_code = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     shiire_saki_code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
-                    chumon_date = table.Column<DateOnly>(type: "date", nullable: true)
+                    chumon_date = table.Column<DateOnly>(type: "date", nullable: true),
+                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -100,7 +101,8 @@ namespace ConvenienceMVC.Migrations
                     shiire_prd_code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
                     shohin_code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
                     chumon_su = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
-                    chumon_zan = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false)
+                    chumon_zan = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
+                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
                 },
                 constraints: table =>
                 {

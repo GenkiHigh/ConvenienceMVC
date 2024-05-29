@@ -38,6 +38,12 @@ namespace ConvenienceMVC.Migrations
                         .HasColumnType("date")
                         .HasColumnName("chumon_date");
 
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
                     b.HasKey("ChumonId", "ShiireSakiId");
 
                     b.HasIndex("ShiireSakiId");
@@ -76,6 +82,12 @@ namespace ConvenienceMVC.Migrations
                         .HasPrecision(10, 2)
                         .HasColumnType("numeric(10,2)")
                         .HasColumnName("chumon_zan");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.HasKey("ChumonId", "ShiireSakiId", "ShiirePrdId", "ShohinId");
 

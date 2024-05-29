@@ -9,6 +9,7 @@
 <h1>注文実績明細更新</h1>
 
 <form asp-action="Update" id="updateForm">
+    @Html.AntiForgeryToken()
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" name="id" value="1"></input>
     <table class="table">

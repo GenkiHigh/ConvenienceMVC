@@ -166,6 +166,13 @@ namespace ConvenienceMVC.Models.Properties.Shiires
                 // DBにある場合
                 if (shiireJissekis.Count != 0)
                 {
+                    var current = _context.Entry(inShiireJissekis[0]).Property(v => v.Version).CurrentValue;
+                    var current2 = _context.Entry(shiireJissekis[0]).Property(v => v.Version).CurrentValue;
+                    if (current != current2)
+                    {
+                        throw new Exception("既に更新されています。");
+                    }
+
                     // 納入数を入力後のデータと同期
                     for (int i = 0; i < shiireJissekis.Count; i++)
                     {
@@ -296,6 +303,13 @@ namespace ConvenienceMVC.Models.Properties.Shiires
                 // DBにある場合
                 if (sokoZaikos.Count != 0)
                 {
+                    var current = _context.Entry(inSokoZaikos[0]).Property(v => v.Version).CurrentValue;
+                    var current2 = _context.Entry(sokoZaikos[0]).Property(v => v.Version).CurrentValue;
+                    if (current != current2)
+                    {
+                        throw new Exception("既に更新されています。");
+                    }
+
                     // 倉庫在庫数を入力後のデータと同期
                     for (int i = 0; i < sokoZaikos.Count; i++)
                     {

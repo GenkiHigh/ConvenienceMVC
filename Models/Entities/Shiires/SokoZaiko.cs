@@ -49,6 +49,9 @@ namespace ConvenienceMVC.Models.Entities.Shiires
         [DisplayName("直近払出日")]
         public DateOnly? LastDeliveryDate { get; set; }
 
+        [Timestamp]
+        public uint Version { get; set; }
+
         [ForeignKey(nameof(ShiireSakiId) + "," + nameof(ShiirePrdId) + "," + nameof(ShohinId))]
         public virtual ShiireMaster? ShiireMaster { get; set; }
     }

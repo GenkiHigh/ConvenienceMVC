@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ConvenienceMVC.Migrations
 {
     /// <inheritdoc />
-    public partial class _20240529001 : Migration
+    public partial class _20240530001 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

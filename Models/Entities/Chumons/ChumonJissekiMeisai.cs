@@ -45,9 +45,6 @@ namespace ConvenienceMVC.Models.Entities.Chumons
         [Required]
         public decimal ChumonZan { get; set; }
 
-        [Timestamp]
-        public uint Version { get; set; }
-
         [ForeignKey(nameof(ChumonId) + "," + nameof(ShiireSakiId))]
         public virtual ChumonJisseki? ChumonJisseki { get; set; }
 

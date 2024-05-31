@@ -54,6 +54,9 @@ namespace ConvenienceMVC.Models.Entities.Shiires
         [Required]
         public decimal NonyuSu { get; set; }
 
+        [Timestamp]
+        public uint Version { get; set; }
+
         [ForeignKey(nameof(ChumonId) + "," + nameof(ShiireSakiId) + "," + nameof(ShiirePrdId) + "," + nameof(ShohinId))]
         public virtual ChumonJissekiMeisai? ChumonJissekiMeisai { get; set; }
     }

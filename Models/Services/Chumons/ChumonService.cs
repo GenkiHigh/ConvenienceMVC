@@ -105,6 +105,7 @@ namespace ConvenienceMVC.Models.Services.Chumons
             // 注文更新
             // 前回か最新の結果が返ってくる
             Chumon.ChumonJisseki = Chumon.ChumonUpdate(inChumonViewModel.ChumonJisseki);
+
             // DB更新
             _context.SaveChanges();
             // 注文実績必要様をインクルード

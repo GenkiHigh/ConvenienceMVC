@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
 using ConvenienceMVC.Models.Entities.Chumons;
 using ConvenienceMVC.Models.Interfaces.Chumons;
+using ConvenienceMVC.Models.Services.Chumons;
+using ConvenienceMVC.Models.Views.Chumons;
 using ConvenienceMVC_Context;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 
 namespace ConvenienceMVC.Models.Properties.Chumons
 {
@@ -138,7 +139,7 @@ namespace ConvenienceMVC.Models.Properties.Chumons
                 var mapper = new Mapper(config);
                 ChumonJisseki chumonJisseki = mapper.Map<ChumonJisseki>(ChumonJisseki);
 
-                chumonJisseki = _context.ChumonJisseki
+                chumonJisseki = _context.ChumonJisseki.AsNoTracking()
                     .Where(chu => chu.ChumonId == inChumonJisseki.ChumonId && chu.ShiireSakiId == inChumonJisseki.ShiireSakiId)
                     .Include(chu => chu.ChumonJissekiMeisais)
                     .FirstOrDefault();
@@ -146,9 +147,17 @@ namespace ConvenienceMVC.Models.Properties.Chumons
                 // DBにデータがある場合
                 if (chumonJisseki != null)
                 {
+                    // 楽観的排他制御
+                    var current = _context.Entry(inChumonJisseki).Property(v => v.Version).CurrentValue;
+                    var current2 = _context.Entry(chumonJisseki).Property(v => v.Version).CurrentValue;
+                    if (current != current2)
+                    {
+                        throw new Exception("既に別のデータが更新されています");
+                    }
+
                     chumonJisseki.ChumonJissekiMeisais = _context.ChumonJissekiMeisai
-                        .Where(mei=>mei.ChumonId == chumonJisseki.ChumonId)
-                        .OrderBy(mei=>mei.ShohinId).ToList();
+                        .Where(mei => mei.ChumonId == chumonJisseki.ChumonId)
+                        .OrderBy(mei => mei.ShohinId).ToList();
 
                     // 注文数残を更新
                     for (int i = 0; i < ChumonJisseki.ChumonJissekiMeisais.Count; i++)
@@ -164,6 +173,13 @@ namespace ConvenienceMVC.Models.Properties.Chumons
                             chumonJisseki.ChumonJissekiMeisais[i].ChumonSu -= chumonJisseki.ChumonJissekiMeisais[i].ChumonZan;
                             chumonJisseki.ChumonJissekiMeisais[i].ChumonZan = 0;
                         }
+                    }
+
+                    // version更新
+                    _context.ChumonJisseki.Update(chumonJisseki);
+                    foreach (var item in chumonJisseki.ChumonJissekiMeisais)
+                    {
+                        _context.ChumonJissekiMeisai.Update(item);
                     }
 
                     // 注文実績を更新
@@ -191,9 +207,8 @@ namespace ConvenienceMVC.Models.Properties.Chumons
                 var config = new MapperConfiguration(cfg => cfg.CreateMap<ChumonJisseki, ChumonJisseki>());
                 var mapper = new Mapper(config);
                 ChumonJisseki chumonJisseki = mapper.Map<ChumonJisseki>(ChumonJisseki);
-                //ChumonJisseki chumonJisseki = ChumonJisseki;
 
-                chumonJisseki = _context.ChumonJisseki
+                chumonJisseki = _context.ChumonJisseki.AsNoTracking()
                     .Where(chu => chu.ChumonId == inChumonJisseki.ChumonId && chu.ShiireSakiId == inChumonJisseki.ShiireSakiId)
                     .Include(chu => chu.ChumonJissekiMeisais)
                     .FirstOrDefault();

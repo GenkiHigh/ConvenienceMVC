@@ -139,61 +139,50 @@ namespace ConvenienceMVC.Models.Properties.Shiires
              * 更新後又は追加後の仕入実績リストを戻り値に渡す
              */
 
-            // 前回と比べて納入数が変化しているかを判定
-            bool changeFlag = false;
-            for (int i = 0; i < inShiireJissekis.Count; i++)
+            // DBに対象の仕入実績があるかを検索
+            IList<ShiireJisseki> shiireJissekis = ShiireJissekis;
+
+            shiireJissekis = _context.ShiireJisseki.AsNoTracking()
+                .Where(sj => sj.ShiireSakiId == inShiireJissekis.First().ShiireSakiId &&
+                sj.ChumonId == inShiireJissekis.First().ChumonId)
+                .OrderBy(sj => sj.ShohinId)
+                .ToList();
+
+            // DBにある場合
+            if (shiireJissekis.Count != 0)
             {
-                // 納入数が違う場合更新処理に移動
-                if (ShiireJissekis[i].NonyuSu != inShiireJissekis[i].NonyuSu)
+                var current = _context.Entry(inShiireJissekis[0]).Property(v => v.Version).CurrentValue;
+                var current2 = _context.Entry(shiireJissekis[0]).Property(v => v.Version).CurrentValue;
+                if (current != current2)
                 {
-                    changeFlag = true;
-                    break;
+                    throw new Exception("既に更新されています。");
                 }
+
+                // 納入数を入力後のデータと同期
+                for (int i = 0; i < shiireJissekis.Count; i++)
+                {
+                    shiireJissekis[i].NonyuSu = inShiireJissekis[i].NonyuSu;
+                }
+
+                foreach (var shiire in shiireJissekis)
+                {
+                    _context.ShiireJisseki.Update(shiire);
+                }
+
+                // 仕入実績リストを更新
+                ShiireJissekis = shiireJissekis;
             }
-
-            // 更新処理
-            if (changeFlag)
+            else
             {
-                // DBに対象の仕入実績があるかを検索
-                IList<ShiireJisseki> shiireJissekis = ShiireJissekis;
-
-                shiireJissekis = _context.ShiireJisseki
-                    .Where(sj => sj.ShiireSakiId == inShiireJissekis.First().ShiireSakiId &&
-                    sj.ChumonId == inShiireJissekis.First().ChumonId)
-                    .OrderBy(sj => sj.ShohinId)
-                    .ToList();
-
-                // DBにある場合
-                if (shiireJissekis.Count != 0)
+                // 仕入実績リストを追加
+                for (int i = 0; i < inShiireJissekis.Count; i++)
                 {
-                    var current = _context.Entry(inShiireJissekis[0]).Property(v => v.Version).CurrentValue;
-                    var current2 = _context.Entry(shiireJissekis[0]).Property(v => v.Version).CurrentValue;
-                    if (current != current2)
-                    {
-                        throw new Exception("既に更新されています。");
-                    }
-
-                    // 納入数を入力後のデータと同期
-                    for (int i = 0; i < shiireJissekis.Count; i++)
-                    {
-                        shiireJissekis[i].NonyuSu = inShiireJissekis[i].NonyuSu;
-                    }
-
-                    // 仕入実績リストを更新
-                    ShiireJissekis = shiireJissekis;
+                    inShiireJissekis[i].ShiireDateTime = DateTime.SpecifyKind(inShiireJissekis[i].ShiireDateTime, DateTimeKind.Utc);
+                    _context.ShiireJisseki.Add(inShiireJissekis[i]);
                 }
-                else
-                {
-                    // 仕入実績リストを追加
-                    for (int i = 0; i < inShiireJissekis.Count; i++)
-                    {
-                        inShiireJissekis[i].ShiireDateTime = DateTime.SpecifyKind(inShiireJissekis[i].ShiireDateTime, DateTimeKind.Utc);
-                        _context.ShiireJisseki.Add(inShiireJissekis[i]);
-                    }
 
-                    // 仕入実績を更新
-                    ShiireJissekis = inShiireJissekis;
-                }
+                // 仕入実績を更新
+                ShiireJissekis = inShiireJissekis;
             }
 
             // 更新又は追加後の仕入実績を渡す
@@ -277,60 +266,49 @@ namespace ConvenienceMVC.Models.Properties.Shiires
              * 更新後又は追加後の倉庫在庫リストを戻り値に渡す
              */
 
-            // 前回と比べて在庫数が変化しているかを判定
-            bool changeFlag = false;
-            for (int i = 0; i < inSokoZaikos.Count; i++)
+            // DBに対象の倉庫在庫があるかを検索
+            IList<SokoZaiko> sokoZaikos = SokoZaikos;
+
+            sokoZaikos = _context.SokoZaiko.AsNoTracking()
+                .Where(sz => sz.ShiireSakiId == inSokoZaikos.First().ShiireSakiId)
+                .OrderBy(sz => sz.ShohinId)
+                .ToList();
+
+            // DBにある場合
+            if (sokoZaikos.Count != 0)
             {
-                // 在庫数が違う場合更新処理に移動
-                if (SokoZaikos[i].SokoZaikoSu != inSokoZaikos[i].SokoZaikoSu)
+                var current = _context.Entry(inSokoZaikos[0]).Property(v => v.Version).CurrentValue;
+                var current2 = _context.Entry(sokoZaikos[0]).Property(v => v.Version).CurrentValue;
+                if (current != current2)
                 {
-                    changeFlag = true;
-                    break;
+                    throw new Exception("既に更新されています。");
                 }
+
+                // 倉庫在庫数を入力後のデータと同期
+                for (int i = 0; i < sokoZaikos.Count; i++)
+                {
+                    sokoZaikos[i].SokoZaikoSu = inSokoZaikos[i].SokoZaikoSu;
+                }
+
+                foreach (var zaiko in sokoZaikos)
+                {
+                    _context.SokoZaiko.Update(zaiko);
+                }
+
+                // 倉庫在庫を更新
+                SokoZaikos = sokoZaikos;
             }
-
-            // 更新処理
-            if (changeFlag)
+            // 追加
+            else
             {
-                // DBに対象の倉庫在庫があるかを検索
-                IList<SokoZaiko> sokoZaikos = SokoZaikos;
-
-                sokoZaikos = _context.SokoZaiko
-                    .Where(sz => sz.ShiireSakiId == inSokoZaikos.First().ShiireSakiId)
-                    .OrderBy(sz => sz.ShohinId)
-                    .ToList();
-
-                // DBにある場合
-                if (sokoZaikos.Count != 0)
+                // 複数の倉庫在庫を追加
+                for (int i = 0; i < inSokoZaikos.Count; i++)
                 {
-                    var current = _context.Entry(inSokoZaikos[0]).Property(v => v.Version).CurrentValue;
-                    var current2 = _context.Entry(sokoZaikos[0]).Property(v => v.Version).CurrentValue;
-                    if (current != current2)
-                    {
-                        throw new Exception("既に更新されています。");
-                    }
-
-                    // 倉庫在庫数を入力後のデータと同期
-                    for (int i = 0; i < sokoZaikos.Count; i++)
-                    {
-                        sokoZaikos[i].SokoZaikoSu = inSokoZaikos[i].SokoZaikoSu;
-                    }
-
-                    // 倉庫在庫を更新
-                    SokoZaikos = sokoZaikos;
+                    _context.SokoZaiko.Add(inSokoZaikos[i]);
                 }
-                // 追加
-                else
-                {
-                    // 複数の倉庫在庫を追加
-                    for (int i = 0; i < inSokoZaikos.Count; i++)
-                    {
-                        _context.SokoZaiko.Add(inSokoZaikos[i]);
-                    }
 
-                    // 倉庫在庫を更新
-                    SokoZaikos = inSokoZaikos;
-                }
+                // 倉庫在庫を更新
+                SokoZaikos = inSokoZaikos;
             }
 
             // 更新後又は追加後の倉庫在庫リストを渡す
@@ -378,7 +356,7 @@ namespace ConvenienceMVC.Models.Properties.Shiires
              */
 
             // 注文実績明細取得
-            var meisai = _context.ChumonJissekiMeisai
+            var meisais = _context.ChumonJissekiMeisai.AsNoTracking()
                 .Where(mei => mei.ShiireSakiId == inShiireViewModel.ShiireJissekis.First().ShiireSakiId &&
                 mei.ChumonId == inShiireViewModel.ShiireJissekis.First().ChumonId)
                 .OrderBy(mei => mei.ShohinId)
@@ -388,16 +366,18 @@ namespace ConvenienceMVC.Models.Properties.Shiires
             for (int i = 0; i < inShiireViewModel.ShiireJissekis.Count; i++)
             {
                 // 注文残以上の納入不可
-                inShiireViewModel.ShiireJissekis[i].NonyuSu = inShiireViewModel.ShiireJissekis[i].NonyuSu - ShiireJissekis[i].NonyuSu <= meisai[i].ChumonZan ?
-                    inShiireViewModel.ShiireJissekis[i].NonyuSu : ShiireJissekis[i].NonyuSu + meisai[i].ChumonZan;
+                inShiireViewModel.ShiireJissekis[i].NonyuSu = inShiireViewModel.ShiireJissekis[i].NonyuSu - ShiireJissekis[i].NonyuSu <= meisais[i].ChumonZan ?
+                    inShiireViewModel.ShiireJissekis[i].NonyuSu : ShiireJissekis[i].NonyuSu + meisais[i].ChumonZan;
 
                 // 前回の納入数と比較して注文残、在庫数の変動量を設定
                 decimal transNum = inShiireViewModel.ShiireJissekis[i].NonyuSu - ShiireJissekis[i].NonyuSu;
 
                 // 注文残変動
-                meisai[i].ChumonZan -= transNum;
+                meisais[i].ChumonZan -= transNum;
                 // 在庫数変動
                 inShiireViewModel.SokoZaikos[i].SokoZaikoSu += transNum;
+
+                _context.ChumonJissekiMeisai.Update(meisais[i]);
             }
 
             // 変動後の注文実績明細は後ほど行うDB更新で反映される

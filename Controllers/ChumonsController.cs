@@ -5,7 +5,6 @@ using ConvenienceMVC.Models.Views.Chumons;
 using ConvenienceMVC_Context;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 namespace ConvenienceMVC.Controllers

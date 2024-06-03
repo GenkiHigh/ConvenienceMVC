@@ -4,14 +4,43 @@
 
 <h1>総合メニュー</h1>
 
-<p>
-    <a asp-action="Chumon">商品注文</a>
-</p>
+<div class="row justify-content-start">
+    <div class="col-sm-4">
+        <div class="card">
+            <div class="card-body">
+                <h4>メニュー</h4>
+                <form asp-action="Index">
+                    <input type="submit" value="メニュー" class="btn btn-primary" id="notBarrageButton" tabindex="1" />
+                </form>
+            </div>
+        </div>
+    </div>
 
-<p>
-    <a asp-action="Shiire">商品仕入</a>
-</p>
+    <div class="col-sm-4">
+        <div class="card">
+            <div class="card-body">
+                <h4>商品注文</h4>
+                <form asp-action="Chumon">
+                    <input type="submit" value="商品注文" class="btn btn-primary" id="notBarrageButton" tabindex="1" />
+                </form>
+            </div>
+        </div>
+    </div>
 
-<p>
-    <a asp-action="SetShiireMastar">仕入マスタ設定</a>
-</p>
+    <div class="col-sm-4">
+        <div class="card">
+            <div class="card-body">
+                <h4>商品注文</h4>
+                <form asp-action="Shiire">
+                    <input type="submit" value="仕入入力" class="btn btn-primary" id="notBarrageButton" tabindex="1" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* <p>
+    <a asp-action="SetShiireMastar" tabindex="1">仕入マスタ設定</a>
+</p> *@
+
+<script src="/js/NotBarrage.js"></script>

@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
 using ConvenienceMVC.Models.Entities.Chumons;
 using ConvenienceMVC.Models.Interfaces.Chumons;
-using ConvenienceMVC.Models.Services.Chumons;
-using ConvenienceMVC.Models.Views.Chumons;
 using ConvenienceMVC_Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -119,115 +117,71 @@ namespace ConvenienceMVC.Models.Properties.Chumons
              * 更新後又は追加後の注文実績を戻り値に渡す
              */
 
-            // 初期表示されていた内容と入力後の内容が変わっているかを判定
-            bool changeFlag = false;
-            for (int i = 0; i < ChumonJisseki.ChumonJissekiMeisais.Count; i++)
+            // その注文実績が既にある場合更新、新規の場合追加
+            var config = new MapperConfiguration(cfg => cfg.CreateMap<ChumonJisseki, ChumonJisseki>());
+            var mapper = new Mapper(config);
+            ChumonJisseki chumonJisseki = mapper.Map<ChumonJisseki>(ChumonJisseki);
+
+            chumonJisseki = _context.ChumonJisseki.AsNoTracking()
+                .Where(chu => chu.ChumonId == inChumonJisseki.ChumonId && chu.ShiireSakiId == inChumonJisseki.ShiireSakiId)
+                .Include(chu => chu.ChumonJissekiMeisais)
+                .FirstOrDefault();
+
+            // DBにデータがある場合
+            if (chumonJisseki != null)
             {
-                // 注文数が変更されていたら更新処理に移動
-                if (ChumonJisseki.ChumonJissekiMeisais[i].ChumonSu != inChumonJisseki.ChumonJissekiMeisais[i].ChumonSu)
+                // 楽観的排他制御
+                var current = _context.Entry(inChumonJisseki).Property(v => v.Version).CurrentValue;
+                var current2 = _context.Entry(chumonJisseki).Property(v => v.Version).CurrentValue;
+                if (current != current2)
                 {
-                    changeFlag = true;
-                    break;
+                    throw new Exception("既に別のデータが更新されています");
                 }
+
+                chumonJisseki.ChumonJissekiMeisais = _context.ChumonJissekiMeisai
+                    .Where(mei => mei.ChumonId == chumonJisseki.ChumonId)
+                    .OrderBy(mei => mei.ShohinId).ToList();
+
+                // 注文数残を更新
+                for (int i = 0; i < ChumonJisseki.ChumonJissekiMeisais.Count; i++)
+                {
+                    // 初期表示の値と入力後の値の差分、注文数残を変動
+                    decimal chumonSa = inChumonJisseki.ChumonJissekiMeisais[i].ChumonSu - chumonJisseki.ChumonJissekiMeisais[i].ChumonSu;
+                    chumonJisseki.ChumonJissekiMeisais[i].ChumonSu += chumonSa;
+                    chumonJisseki.ChumonJissekiMeisais[i].ChumonZan += chumonSa;
+
+                    // 注文残が0未満にならないよう調整
+                    if (chumonJisseki.ChumonJissekiMeisais[i].ChumonZan < 0)
+                    {
+                        chumonJisseki.ChumonJissekiMeisais[i].ChumonSu -= chumonJisseki.ChumonJissekiMeisais[i].ChumonZan;
+                        chumonJisseki.ChumonJissekiMeisais[i].ChumonZan = 0;
+                    }
+                }
+
+                // version更新
+                _context.ChumonJisseki.Update(chumonJisseki);
+                foreach (var meisai in chumonJisseki.ChumonJissekiMeisais)
+                {
+                    _context.ChumonJissekiMeisai.Update(meisai);
+                }
+
+                // 注文実績を更新
+                ChumonJisseki = chumonJisseki;
             }
-
-            // 更新処理
-            if (changeFlag)
-            {
-                // その注文実績が既にある場合更新、新規の場合追加
-                var config = new MapperConfiguration(cfg => cfg.CreateMap<ChumonJisseki, ChumonJisseki>());
-                var mapper = new Mapper(config);
-                ChumonJisseki chumonJisseki = mapper.Map<ChumonJisseki>(ChumonJisseki);
-
-                chumonJisseki = _context.ChumonJisseki.AsNoTracking()
-                    .Where(chu => chu.ChumonId == inChumonJisseki.ChumonId && chu.ShiireSakiId == inChumonJisseki.ShiireSakiId)
-                    .Include(chu => chu.ChumonJissekiMeisais)
-                    .FirstOrDefault();
-
-                // DBにデータがある場合
-                if (chumonJisseki != null)
-                {
-                    // 楽観的排他制御
-                    var current = _context.Entry(inChumonJisseki).Property(v => v.Version).CurrentValue;
-                    var current2 = _context.Entry(chumonJisseki).Property(v => v.Version).CurrentValue;
-                    if (current != current2)
-                    {
-                        throw new Exception("既に別のデータが更新されています");
-                    }
-
-                    chumonJisseki.ChumonJissekiMeisais = _context.ChumonJissekiMeisai
-                        .Where(mei => mei.ChumonId == chumonJisseki.ChumonId)
-                        .OrderBy(mei => mei.ShohinId).ToList();
-
-                    // 注文数残を更新
-                    for (int i = 0; i < ChumonJisseki.ChumonJissekiMeisais.Count; i++)
-                    {
-                        // 初期表示の値と入力後の値の差分、注文数残を変動
-                        decimal chumonSa = inChumonJisseki.ChumonJissekiMeisais[i].ChumonSu - chumonJisseki.ChumonJissekiMeisais[i].ChumonSu;
-                        chumonJisseki.ChumonJissekiMeisais[i].ChumonSu += chumonSa;
-                        chumonJisseki.ChumonJissekiMeisais[i].ChumonZan += chumonSa;
-
-                        // 注文残が0未満にならないよう調整
-                        if (chumonJisseki.ChumonJissekiMeisais[i].ChumonZan < 0)
-                        {
-                            chumonJisseki.ChumonJissekiMeisais[i].ChumonSu -= chumonJisseki.ChumonJissekiMeisais[i].ChumonZan;
-                            chumonJisseki.ChumonJissekiMeisais[i].ChumonZan = 0;
-                        }
-                    }
-
-                    // version更新
-                    _context.ChumonJisseki.Update(chumonJisseki);
-                    foreach (var item in chumonJisseki.ChumonJissekiMeisais)
-                    {
-                        _context.ChumonJissekiMeisai.Update(item);
-                    }
-
-                    // 注文実績を更新
-                    ChumonJisseki = chumonJisseki;
-                }
-                // 追加
-                else
-                {
-                    // 注文実績を追加
-                    _context.ChumonJisseki.Add(inChumonJisseki);
-
-                    // 注文実績明細を追加
-                    foreach (var item in inChumonJisseki.ChumonJissekiMeisais)
-                    {
-                        _context.ChumonJissekiMeisai.Add(item);
-                    }
-
-                    // 注文実績を更新
-                    ChumonJisseki = inChumonJisseki;
-                }
-            }
+            // 追加
             else
             {
-                // 初期表示と内容が同じでありDBにデータがない場合、データ追加
-                var config = new MapperConfiguration(cfg => cfg.CreateMap<ChumonJisseki, ChumonJisseki>());
-                var mapper = new Mapper(config);
-                ChumonJisseki chumonJisseki = mapper.Map<ChumonJisseki>(ChumonJisseki);
+                // 注文実績を追加
+                _context.ChumonJisseki.Add(inChumonJisseki);
 
-                chumonJisseki = _context.ChumonJisseki.AsNoTracking()
-                    .Where(chu => chu.ChumonId == inChumonJisseki.ChumonId && chu.ShiireSakiId == inChumonJisseki.ShiireSakiId)
-                    .Include(chu => chu.ChumonJissekiMeisais)
-                    .FirstOrDefault();
-
-                // DBにデータが無い場合
-                if (chumonJisseki == null)
+                // 注文実績明細を追加
+                foreach (var item in inChumonJisseki.ChumonJissekiMeisais)
                 {
-                    // 注文実績を追加
-                    _context.ChumonJisseki.Add(inChumonJisseki);
-
-                    // 注文実績明細を追加
-                    foreach (var item in inChumonJisseki.ChumonJissekiMeisais)
-                    {
-                        _context.ChumonJissekiMeisai.Add(item);
-                    }
-
-                    // 注文実績を更新
-                    ChumonJisseki = inChumonJisseki;
+                    _context.ChumonJissekiMeisai.Add(item);
                 }
+
+                // 注文実績を更新
+                ChumonJisseki = inChumonJisseki;
             }
 
             // 注文実績を渡す

@@ -9,15 +9,10 @@ builder.Services.AddDbContext<ConvenienceMVCContext>(options =>
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews().AddSessionStateTempDataProvider();
 
 // セッションの追加
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromMinutes(30); // セッションの有効期間
-    options.Cookie.HttpOnly = true; // クッキーのセキュリティ設定
-    options.Cookie.IsEssential = true; // GDPRに対応するために必須とする
-});
+builder.Services.AddSession();
 
 var app = builder.Build();
 

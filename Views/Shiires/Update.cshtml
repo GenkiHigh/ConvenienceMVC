@@ -106,7 +106,7 @@
         </table>
     </div>
     <div class="form-group">
-        <input type="submit" value="Update" class="btn btn-primary" />
+        <input type="submit" value="Update" class="btn btn-primary" id="notBarrageButton" />
     </div>
     <p>
         <div id="remark" class="@(Model.IsNormal??true ? "text-primary" : "text-danger")">
@@ -125,4 +125,3 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 }
-

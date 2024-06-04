@@ -4,6 +4,8 @@ using ConvenienceMVC.Models.Properties.Chumons;
 using ConvenienceMVC.Models.Views.Chumons;
 using ConvenienceMVC_Context;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
+using static ConvenienceMVC.Models.Properties.ErrorMessage;
 
 namespace ConvenienceMVC.Models.Services.Chumons
 {
@@ -124,7 +126,7 @@ namespace ConvenienceMVC.Models.Services.Chumons
         }
 
         // 注文実績必要要素インクルード
-        public ChumonJisseki IncludeChumonJisseki(ChumonJisseki inChumonJisseki)
+        private ChumonJisseki IncludeChumonJisseki(ChumonJisseki inChumonJisseki)
         {
             ChumonJisseki chumonJisseki = _context.ChumonJisseki
                 .Where(ch => ch.ChumonId == inChumonJisseki.ChumonId && ch.ShiireSakiId == inChumonJisseki.ShiireSakiId)
@@ -139,6 +141,47 @@ namespace ConvenienceMVC.Models.Services.Chumons
                 .OrderBy(mei => mei.ShohinId).ToList();
 
             return chumonJisseki;
+        }
+
+        private (bool, eError ChumonIdError) ChumonJissekiIsValid(ChumonJisseki inChumonJisseki)
+        {
+            var chumonId = inChumonJisseki.ChumonId;
+            var chumonDate = inChumonJisseki.ChumonDate;
+
+            if (!Regex.IsMatch(chumonId, "^[0-9]{8}-[0-9]{3}$"))
+            {
+                return (false, eError.ChumonIdError);
+            }
+            else if (chumonDate == null || chumonDate <= (new DateOnly(1, 1, 1)))
+            {
+                return (false, eError.ChumonDateError);
+            }
+
+            foreach (var i in inChumonJisseki.ChumonJissekiMeisais)
+            {
+                if (i.ChumonId != chumonId)
+                {
+                    return (false, eError.ChumonIdRelationError);
+                }
+                else if (i.ChumonSu == null)
+                {
+                    return (false, eError.ChumonSuIsNull);
+                }
+                else if (i.ChumonSu < 0)
+                {
+                    return (false, eError.ChumonSuBadRange);
+                }
+                else if (i.ChumonZan == null)
+                {
+                    return (false, eError.ChumonZanIsNull);
+                }
+                else if (i.ChumonSu < i.ChumonZan)
+                {
+                    return (false, eError.SuErrorBetChumonSuAndZan);
+                }
+            }
+
+            return (true, eError.NormalUpdate);
         }
     }
 }

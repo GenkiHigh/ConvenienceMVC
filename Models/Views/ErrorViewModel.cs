@@ -9,7 +9,7 @@ namespace ConvenienceMVC.Models.Views
         public string? RequestId { get; set; }
         public int? Id { get; set; }
 
-        public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+        public bool? ShowRequestId => !string.IsNullOrEmpty(RequestId);
 
         public string? Path { get; set; }
         public string? Error_Message { get; set; }

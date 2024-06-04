@@ -67,7 +67,7 @@ namespace ConvenienceMVC.Controllers
             }
 
             // 注文実績検索(既に注文されたかを問い合わせる)
-            ChumonViewModel chumonViewModel = ChumonService.ChumonSetting(
+            ChumonViewModel chumonViewModel = await ChumonService.ChumonSetting(
                 inChumonKeyViewModel.ShiireSakiId, DateOnly.FromDateTime(inChumonKeyViewModel.ChumonDate));
 
             // 注文実績保存
@@ -114,7 +114,7 @@ namespace ConvenienceMVC.Controllers
             GetObject();
 
             // 注文実績更新
-            inChumonViewModel = ChumonService.ChumonCommit(inChumonViewModel);
+            inChumonViewModel = await ChumonService.ChumonCommit(inChumonViewModel);
 
             // 注文実績保存
             KeepObject();

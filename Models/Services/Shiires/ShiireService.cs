@@ -90,7 +90,7 @@ namespace ConvenienceMVC.Models.Services.Shiires
          * 仕入実績、倉庫在庫更新
          * inShiireViewModel：入力したデータを格納したViewModel
          */
-        public ShiireViewModel ShiireCommit(ShiireViewModel inShiireViewModel)
+        public async Task<ShiireViewModel> ShiireCommit(ShiireViewModel inShiireViewModel)
         {
             /*
              * 初期表示されていた内容と入力後の内容を比較して変更されたかを判定　@①
@@ -123,7 +123,7 @@ namespace ConvenienceMVC.Models.Services.Shiires
             // 在庫倉庫更新
             inShiireViewModel.SokoZaikos = Shiire.ZaikoUpdate(inShiireViewModel.SokoZaikos);
             // DB更新
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             // 仕入実績対応要素インクルード
             inShiireViewModel.ShiireJissekis = IncludeShiireJissekis(inShiireViewModel.ShiireJissekis);

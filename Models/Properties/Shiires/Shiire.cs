@@ -329,10 +329,11 @@ namespace ConvenienceMVC.Models.Properties.Shiires
              */
 
             // 注文実績明細が無い場合エラー
-            if (_context.ChumonJissekiMeisai.Count() == 0) return false;
+            if (_context.ChumonJissekiMeisai.AsNoTracking().Count() == 0) return false;
 
             // 対応する注文実績明細があるかを検索
-            var check = _context.ChumonJissekiMeisai.Where(mei => mei.ChumonId == inChumonId).FirstOrDefault();
+            var check = _context.ChumonJissekiMeisai
+                .Where(mei => mei.ChumonId == inChumonId).FirstOrDefault();
 
             // 注文されている場合仕入実績を新規作成
             if (check != null) return true;

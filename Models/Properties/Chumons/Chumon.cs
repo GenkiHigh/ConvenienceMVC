@@ -138,7 +138,7 @@ namespace ConvenienceMVC.Models.Properties.Chumons
                     throw new Exception("既に別のデータが更新されています");
                 }
 
-                chumonJisseki.ChumonJissekiMeisais = _context.ChumonJissekiMeisai
+                chumonJisseki.ChumonJissekiMeisais = _context.ChumonJissekiMeisai.AsNoTracking()
                     .Where(mei => mei.ChumonId == chumonJisseki.ChumonId)
                     .OrderBy(mei => mei.ShohinId).ToList();
 

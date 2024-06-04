@@ -29,7 +29,7 @@ namespace ConvenienceMVC.Models.Services.Chumons
          * inShiireSakiId：選択された仕入先コード
          * inChumonDate：選択された注文日
          */
-        public ChumonViewModel ChumonSetting(string inShiireSakiId, DateOnly inChumonDate)
+        public async Task<ChumonViewModel> ChumonSetting(string inShiireSakiId, DateOnly inChumonDate)
         {
             /*
              * 選択された仕入先コード、注文日を元に注文実績を問い合わせる
@@ -50,8 +50,9 @@ namespace ConvenienceMVC.Models.Services.Chumons
                 // 注文実績に必要な要素をインクルード
                 chumonJisseki = IncludeChumonJisseki(chumonJisseki);
 
-                var meisais = _context.ChumonJissekiMeisai.Where(mei => mei.ChumonId == chumonJisseki.ChumonId)
-                    .OrderBy(mei => mei.ShohinId).ToList();
+                var meisais = await _context.ChumonJissekiMeisai
+                    .Where(mei => mei.ChumonId == chumonJisseki.ChumonId)
+                    .OrderBy(mei => mei.ShohinId).ToListAsync();
 
                 chumonJisseki.ChumonJissekiMeisais = meisais;
             }
@@ -78,7 +79,7 @@ namespace ConvenienceMVC.Models.Services.Chumons
          * 注文実績更新
          * inChumonViewModel：入力された注文数を格納した注文実績更新用ViewModel
          */
-        public ChumonViewModel ChumonCommit(ChumonViewModel inChumonViewModel)
+        public async Task<ChumonViewModel> ChumonCommit(ChumonViewModel inChumonViewModel)
         {
             /*
              * 初期表示されていた注文数と入力後の注文数を比較して注文数が変更されたかを判定
@@ -107,7 +108,7 @@ namespace ConvenienceMVC.Models.Services.Chumons
             Chumon.ChumonJisseki = Chumon.ChumonUpdate(inChumonViewModel.ChumonJisseki);
 
             // DB更新
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             // 注文実績必要様をインクルード
             inChumonViewModel.ChumonJisseki = IncludeChumonJisseki(inChumonViewModel.ChumonJisseki);
 

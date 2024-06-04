@@ -114,7 +114,7 @@ namespace ConvenienceMVC.Controllers
             GetObjects();
 
             // 仕入実績、倉庫在庫更新
-            inShiireViewModel = ShiireService.ShiireCommit(inShiireViewModel);
+            inShiireViewModel = await ShiireService.ShiireCommit(inShiireViewModel);
 
             // 仕入実績、倉庫在庫保存
             KeepObjects();

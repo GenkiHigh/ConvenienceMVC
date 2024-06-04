@@ -50,7 +50,7 @@ namespace ConvenienceMVC.Models.Properties.Chumons
             };
 
             // 仕入マスタ取得
-            var shiireMastars = _context.ShiireMaster
+            var shiireMastars = _context.ShiireMaster.AsNoTracking()
                 .Where(sm => sm.ShiireSakiId == inShiireSakiCode)
                 .Include(sm => sm.ShiireSakiMaster)
                 .Include(sm => sm.ShohinMaster)
@@ -175,9 +175,9 @@ namespace ConvenienceMVC.Models.Properties.Chumons
                 _context.ChumonJisseki.Add(inChumonJisseki);
 
                 // 注文実績明細を追加
-                foreach (var item in inChumonJisseki.ChumonJissekiMeisais)
+                foreach (var meisai in inChumonJisseki.ChumonJissekiMeisais)
                 {
-                    _context.ChumonJissekiMeisai.Add(item);
+                    _context.ChumonJissekiMeisai.Add(meisai);
                 }
 
                 // 注文実績を更新

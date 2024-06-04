@@ -1,7 +1,6 @@
-﻿using ConvenienceMVC.Models;
-using ConvenienceMVC.Models.Views;
+﻿using ConvenienceMVC.Models.Views;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 
 namespace ConvenienceMVC.Controllers
 {
@@ -25,9 +24,17 @@ namespace ConvenienceMVC.Controllers
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        public IActionResult Error(int? id)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            var exceptionHandlerPathFeature =
+                HttpContext.Features.Get<IExceptionHandlerPathFeature>();
+
+            var path = exceptionHandlerPathFeature.Path;
+            var error_message = exceptionHandlerPathFeature.Error.Message;
+
+            _logger.LogError(1, exceptionHandlerPathFeature.Error, "System Error!!");
+
+            return View(new ErrorViewModel { Id = id, Path = path, Error_Message = error_message });
         }
     }
 }

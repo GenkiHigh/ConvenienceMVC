@@ -30,7 +30,7 @@ namespace ConvenienceMVC.Controllers
         // Index(初期設定)
         public IActionResult Index()
         {
-            return View();
+            return RedirectToAction("Search");
         }
         // Menu(初期設定)
         public IActionResult Menu()

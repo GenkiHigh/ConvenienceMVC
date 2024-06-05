@@ -288,6 +288,8 @@ namespace ConvenienceMVC.Models.Properties.Shiires
                 for (int i = 0; i < sokoZaikos.Count; i++)
                 {
                     sokoZaikos[i].SokoZaikoSu = inSokoZaikos[i].SokoZaikoSu;
+                    sokoZaikos[i].SokoZaikoCaseSu = Math.Floor(inSokoZaikos[i].SokoZaikoSu / inSokoZaikos[i].ShiireMaster.ShiirePcsPerUnit);
+                    sokoZaikos[i].LastDeliveryDate = DateOnly.FromDateTime(DateTime.Today);
                 }
 
                 foreach (var zaiko in sokoZaikos)
@@ -304,6 +306,9 @@ namespace ConvenienceMVC.Models.Properties.Shiires
                 // 複数の倉庫在庫を追加
                 for (int i = 0; i < inSokoZaikos.Count; i++)
                 {
+                    inSokoZaikos[i].SokoZaikoCaseSu = Math.Floor(inSokoZaikos[i].SokoZaikoSu / inSokoZaikos[i].ShiireMaster.ShiirePcsPerUnit);
+                    inSokoZaikos[i].LastDeliveryDate = DateOnly.FromDateTime(DateTime.Today);
+
                     _context.SokoZaiko.Add(inSokoZaikos[i]);
                 }
 

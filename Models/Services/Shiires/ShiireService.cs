@@ -1,4 +1,5 @@
-﻿using ConvenienceMVC.Models.Entities.Shiires;
+﻿using ConvenienceMVC.Models.Entities.Chumons;
+using ConvenienceMVC.Models.Entities.Shiires;
 using ConvenienceMVC.Models.Interfaces.Shiires;
 using ConvenienceMVC.Models.Properties.Shiires;
 using ConvenienceMVC.Models.Views.Shiires;
@@ -104,6 +105,11 @@ namespace ConvenienceMVC.Models.Services.Shiires
              * 更新した仕入実績、倉庫在庫を格納したViewModelを作成し戻り値に渡す
              */
 
+            var shiire = await _context.ShiireMaster
+                .Where(shi => shi.ShiireSakiId == inShiireViewModel.SokoZaikos.First().ShiireSakiId)
+                .OrderBy(shi => shi.ShohinId)
+                .ToListAsync();
+
             // 内容が更新されたか判断
             bool changeFlag = false;
             for (int i = 0; i < inShiireViewModel.ShiireJissekis.Count; i++)
@@ -112,8 +118,8 @@ namespace ConvenienceMVC.Models.Services.Shiires
                 if (Shiire.ShiireJissekis[i].NonyuSu != inShiireViewModel.ShiireJissekis[i].NonyuSu)
                 {
                     changeFlag = true;
-                    break;
                 }
+                inShiireViewModel.SokoZaikos[i].ShiireMaster = shiire[i];
             }
 
             // 納入数に応じて注文残、倉庫在庫数変動

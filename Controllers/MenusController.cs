@@ -29,6 +29,11 @@ namespace ConvenienceMVC.Controllers
             return RedirectToAction("Search", "Shiires");
         }
 
+        public IActionResult Zaiko()
+        {
+            return RedirectToAction("Search", "Zaikos");
+        }
+
         // テスト用
         public IActionResult SetShiireMastar()
         {
@@ -46,10 +51,10 @@ namespace ConvenienceMVC.Controllers
                     _context.ShiireMaster.Add(new ShiireMaster()
                     {
                         ShiireSakiId = shiireSaki.ShiireSakiId,
-                        ShiirePrdId = shohin.ShohinId,
+                        ShiirePrdId = shiireSaki.ShiireSakiKaisya + "-" + shohin.ShohinId,
                         ShohinId = shohin.ShohinId,
                         ShiirePrdName = shohin.ShohinName,
-                        ShiirePcsPerUnit = 0,
+                        ShiirePcsPerUnit = SetShiirePcsPerUnit(shohin.ShohinId),
                         ShiireUnit = "個",
                         ShiireTanka = 0,
                     });
@@ -59,6 +64,33 @@ namespace ConvenienceMVC.Controllers
             _context.SaveChanges();
 
             return View("Index");
+        }
+        // テスト用
+        private decimal SetShiirePcsPerUnit(string inShohinId)
+        {
+            decimal unit = 0;
+            if (inShohinId == "SC001")
+            {
+                unit = 20;
+            }
+            else if (inShohinId == "SC002")
+            {
+                unit = 15;
+            }
+            else if (inShohinId == "SC003")
+            {
+                unit = 10;
+            }
+            else if (inShohinId == "SC004")
+            {
+                unit = 5;
+            }
+            else
+            {
+                unit = 0;
+            }
+
+            return unit;
         }
     }
 }

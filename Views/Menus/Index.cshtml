@@ -24,10 +24,21 @@
             </div>
         </div>
     </div>
+
+    <div class="col-sm-4">
+        <div class="card">
+            <div class="card-body">
+                <h4>在庫検索</h4>
+                <form asp-action="Zaiko">
+                    <input type="submit" value="在庫検索" class="btn btn-primary" id="notBarrageButton" tabindex="1" />
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
-@* <p>
+<p>
     <a asp-action="SetShiireMastar" tabindex="1">仕入マスタ設定</a>
-</p> *@
+</p>
 
 <script src="/js/NotBarrage.js"></script>

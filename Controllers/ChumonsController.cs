@@ -27,9 +27,9 @@ namespace ConvenienceMVC.Controllers
         }
 
         // Index(初期設定)
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            return View();
+            return RedirectToAction("Search");
         }
         // 総合メニュー移動
         public IActionResult Menu()

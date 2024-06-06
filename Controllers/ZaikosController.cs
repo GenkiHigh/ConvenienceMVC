@@ -34,11 +34,19 @@ namespace ConvenienceMVC.Controllers
                 .ThenInclude(shi => shi.ShohinMaster)
                 .ToList();
 
+            IList<string?> keyList = new List<string?>();
+            IList<bool> flagList = new List<bool>();
+            for (int i = 0; i < 3; i++)
+            {
+                keyList.Add(null);
+                flagList.Add(false);
+            }
+
             ZaikoViewModel zaikoViewModel = new ZaikoViewModel()
             {
+                KeyEventDataList = keyList,
+                DescendingFlagList = flagList,
                 SokoZaikos = sokoZaikos,
-                DescendingFlag = false,
-                KeyEventData = null,
             };
 
             return View(zaikoViewModel);

@@ -22,7 +22,7 @@ namespace ConvenienceMVC.Models.Services.Zaikos
             inZaikoViewModel.SokoZaikos = _context.SokoZaiko.Include(soko => soko.ShiireMaster).ThenInclude(shi => shi.ShohinMaster).ToList();
 
             inZaikoViewModel.SokoZaikos = zaiko.SortSokoZaiko(
-                inZaikoViewModel.SokoZaikos, inZaikoViewModel.KeyEventData, inZaikoViewModel.DescendingFlag);
+                inZaikoViewModel.SokoZaikos, inZaikoViewModel.KeyEventDataList, inZaikoViewModel.DescendingFlagList);
 
             return inZaikoViewModel;
         }

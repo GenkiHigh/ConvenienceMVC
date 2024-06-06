@@ -1,20 +1,18 @@
 ﻿using ConvenienceMVC.Models.Entities.Shiires;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 
 namespace ConvenienceMVC.Models.Views.Zaikos
 {
     public class ZaikoViewModel
     {
         [DisplayName("ソートキー")]
-        [MaxLength(20)]
-        [Required]
-        public string KeyEventData { get; set; }
+        public IList<string?>? KeyEventDataList { get; set; }
+
+        [DisplayName("□昇順 / ■降順")]
+        public IList<bool> DescendingFlagList { get; set; }
 
         public IList<SokoZaiko> SokoZaikos { get; set; }
-
-        public bool DescendingFlag { get; set; }
 
         public SelectList KeyList = new SelectList(
             new List<SelectListItem>

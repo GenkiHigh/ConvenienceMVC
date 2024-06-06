@@ -4,6 +4,6 @@ namespace ConvenienceMVC.Models.Interfaces.Zaikos
 {
     public interface IZaiko
     {
-        public IList<SokoZaiko> SortSokoZaiko(IList<SokoZaiko> inSokoZaikos, string inSortCode, bool inDescendingFlag);
+        public IList<SokoZaiko> SortSokoZaiko(IList<SokoZaiko> inSokoZaikos, IList<string?> inSortCodes, IList<bool> inDescendingFlags);
     }
 }

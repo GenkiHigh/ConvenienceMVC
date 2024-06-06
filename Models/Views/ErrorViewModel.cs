@@ -13,7 +13,5 @@ namespace ConvenienceMVC.Models.Views
 
         public string? Path { get; set; }
         public string? Error_Message { get; set; }
-
     }
-
 }

@@ -24,15 +24,25 @@ namespace ConvenienceMVC.Controllers
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        [IgnoreAntiforgeryToken]
         public IActionResult Error(int? id)
         {
             var exceptionHandlerPathFeature =
                 HttpContext.Features.Get<IExceptionHandlerPathFeature>();
 
-            var path = exceptionHandlerPathFeature.Path;
-            var error_message = exceptionHandlerPathFeature.Error.Message;
+            string path = null;
+            string error_message = null;
 
-            _logger.LogError(1, exceptionHandlerPathFeature.Error, "System Error!!");
+            if (exceptionHandlerPathFeature != null)
+            {
+                path = exceptionHandlerPathFeature.Path;
+                error_message = exceptionHandlerPathFeature.Error.Message;
+                _logger.LogError(null, exceptionHandlerPathFeature.Error, "System Error!!");
+            }
+            else
+            {
+                _logger.LogError($"Error without exception handler, status code: {id}");
+            }
 
             return View(new ErrorViewModel { Id = id, Path = path, Error_Message = error_message });
         }

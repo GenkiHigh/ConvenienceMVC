@@ -5,94 +5,77 @@ namespace ConvenienceMVC.Models.Properties.Zaikos
 {
     public class Zaiko : IZaiko
     {
-        public IList<SokoZaiko> SortSokoZaiko(IList<SokoZaiko> inSokoZaikos, string inSortCode, bool inDescendingFlag)
+        public IList<SokoZaiko> SortSokoZaiko(IList<SokoZaiko> inSokoZaikos, IList<string?> inSortCodes, IList<bool> inDescendingFlags)
         {
-            // 昇順
-            if (!inDescendingFlag)
+            // 複数ラムダ式設定
+            IList<Func<SokoZaiko, object>> orderByExpression = new List<Func<SokoZaiko, object>>();
+            for (int i = 0; i < inDescendingFlags.Count; i++)
             {
-                switch (inSortCode)
-                {
-                    case "ShiireSakiId":
-                        inSokoZaikos = inSokoZaikos.OrderBy(soko => soko.ShiireSakiId).ToList();
-                        break;
-
-                    case "ShiirePrdId":
-                        inSokoZaikos = inSokoZaikos.OrderBy(soko => soko.ShiirePrdId).ToList();
-                        break;
-
-                    case "ShohinId":
-                        inSokoZaikos = inSokoZaikos.OrderBy(soko => soko.ShohinId).ToList();
-                        break;
-
-                    case "ShohinName":
-                        inSokoZaikos = inSokoZaikos.OrderBy(soko => soko.ShiireMaster.ShohinMaster.ShohinName).ToList();
-                        break;
-
-                    case "SokoZaikoCaseSu":
-                        inSokoZaikos = inSokoZaikos.OrderBy(soko => soko.SokoZaikoCaseSu).ToList();
-                        break;
-
-                    case "SokoZaikoSu":
-                        inSokoZaikos = inSokoZaikos.OrderBy(soko => soko.SokoZaikoSu).ToList();
-                        break;
-
-                    case "LastShiireDate":
-                        inSokoZaikos = inSokoZaikos.OrderBy(soko => soko.LastShiireDate).ToList();
-                        break;
-
-                    case "LastDeliveryDate":
-                        inSokoZaikos = inSokoZaikos.OrderBy(soko => soko.LastDeliveryDate).ToList();
-                        break;
-
-                    default:
-                        inSokoZaikos = inSokoZaikos.OrderBy(soko => soko.ShiireSakiId).ToList();
-                        break;
-                }
+                orderByExpression.Add(default);
             }
-            // 降順
-            else
+
+            // ソート設定
+            for (int i = 0; i < orderByExpression.Count; i++)
             {
-                switch (inSortCode)
-                {
-                    case "ShiireSakiId":
-                        inSokoZaikos = inSokoZaikos.OrderByDescending(soko => soko.ShiireSakiId).ToList();
-                        break;
-
-                    case "ShiirePrdId":
-                        inSokoZaikos = inSokoZaikos.OrderByDescending(soko => soko.ShiirePrdId).ToList();
-                        break;
-
-                    case "ShohinId":
-                        inSokoZaikos = inSokoZaikos.OrderByDescending(soko => soko.ShohinId).ToList();
-                        break;
-
-                    case "ShohinName":
-                        inSokoZaikos = inSokoZaikos.OrderByDescending(soko => soko.ShiireMaster.ShohinMaster.ShohinName).ToList();
-                        break;
-
-                    case "SokoZaikoCaseSu":
-                        inSokoZaikos = inSokoZaikos.OrderByDescending(soko => soko.SokoZaikoCaseSu).ToList();
-                        break;
-
-                    case "SokoZaikoSu":
-                        inSokoZaikos = inSokoZaikos.OrderByDescending(soko => soko.SokoZaikoSu).ToList();
-                        break;
-
-                    case "LastShiireDate":
-                        inSokoZaikos = inSokoZaikos.OrderByDescending(soko => soko.LastShiireDate).ToList();
-                        break;
-
-                    case "LastDeliveryDate":
-                        inSokoZaikos = inSokoZaikos.OrderByDescending(soko => soko.LastDeliveryDate).ToList();
-                        break;
-
-                    default:
-                        inSokoZaikos = inSokoZaikos.OrderByDescending(soko => soko.ShiireSakiId).ToList();
-                        break;
-                }
+                orderByExpression[i] = SetOrder(orderByExpression[i], inSortCodes[i]);
             }
+
+            // 在庫ソート
+            inSokoZaikos = inSokoZaikos
+                .OrderBy(orderByExpression[0], !inDescendingFlags[0] ? Comparer<object>.Default :
+                Comparer<object>.Create((x, y) => -Comparer<object>.Default.Compare(x, y)))
+                .ThenBy(orderByExpression[1], !inDescendingFlags[1] ? Comparer<object>.Default :
+                Comparer<object>.Create((x, y) => -Comparer<object>.Default.Compare(x, y)))
+                .ThenBy(orderByExpression[2], !inDescendingFlags[2] ? Comparer<object>.Default :
+                Comparer<object>.Create((x, y) => -Comparer<object>.Default.Compare(x, y)))
+                .ToList();
 
             return inSokoZaikos;
+        }
+
+        // ソート設定
+        private Func<SokoZaiko, object> SetOrder(Func<SokoZaiko, object> inOrder, string? inSortCode)
+        {
+            switch (inSortCode)
+            {
+                case "ShiireSakiId":
+                    inOrder = soko => soko.ShiireSakiId;
+                    break;
+
+                case "ShiirePrdId":
+                    inOrder = soko => soko.ShiirePrdId;
+                    break;
+
+                case "ShohinId":
+                    inOrder = soko => soko.ShohinId;
+                    break;
+
+                case "ShohinName":
+                    inOrder = soko => soko.ShiireMaster.ShohinMaster.ShohinName;
+                    break;
+
+                case "SokoZaikoCaseSu":
+                    inOrder = soko => soko.SokoZaikoCaseSu;
+                    break;
+
+                case "SokoZaikoSu":
+                    inOrder = soko => soko.SokoZaikoSu;
+                    break;
+
+                case "LastShiireDate":
+                    inOrder = soko => soko.LastShiireDate;
+                    break;
+
+                case "LastDeliveryDate":
+                    inOrder = soko => soko.LastDeliveryDate;
+                    break;
+
+                default:
+                    inOrder = soko => soko.ShiireSakiId;
+                    break;
+            }
+
+            return inOrder;
         }
     }
 }

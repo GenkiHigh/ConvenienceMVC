@@ -4,6 +4,7 @@ namespace ConvenienceMVC.Models.Interfaces.Zaikos
 {
     public interface IZaikoService
     {
-        public ZaikoViewModel SortSokoZaiko(ZaikoViewModel inZaikoViewModel);
+        // 表示倉庫在庫設定
+        public ZaikoViewModel SetDisplaySokoZaiko(ZaikoViewModel inZaikoViewModel);
     }
 }

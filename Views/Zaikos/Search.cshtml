@@ -4,6 +4,7 @@
 @{
     ViewData["Title"] = "Search";
     var FirstZaiko = Model.SokoZaikos.FirstOrDefault();
+    int num = 0;
 }
 
 <h1>在庫検索</h1>
@@ -11,35 +12,58 @@
 <form asp-action="Search" id="notBarrageForm">
     @Html.AntiForgeryToken()
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <table class="table">
-        <tr>
-            <th>
+    <div class="container">
+        <div class="row">
+            <div class="col-3">
                 <label asp-for="KeyEventDataList" class="control-label"></label>
-            </th>
-            <th>
+            </div>
+            <div class="col-3">
                 <label asp-for="DescendingFlagList" class="control-label"></label>
-            </th>
-        </tr>
-        <tr>
-            <td>
+            </div>
+            <div class="col-3">
+                <label asp-for="SetCodesList" class="control-label"></label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3">
                 @for (int i = 0; i < Model.KeyEventDataList.Count; i++)
                 {
-                    <select asp-for="KeyEventDataList[i]" asp-items="@Model.KeyList" class="form-control">
-                        <option value="">-- 選択してください --</option>
-                    </select>
-                    <span asp-validation-for="@Model.KeyEventDataList[i]" class="text-danger"></span>
+                    <div style="height: 40px; margin-bottom: 5px;">
+                        <select asp-for="KeyEventDataList[i]" asp-items="@Model.KeyList" class="form-control" tabindex="1">
+                            <option value="">-- 選択してください --</option>
+                        </select>
+                    </div>
                 }
-            </td>
-            <td>
+            </div>
+            <div class="col-3">
                 @for (int i = 0; i < Model.DescendingFlagList.Count; i++)
                 {
-                    <input asp-for="DescendingFlagList[i]" type="checkbox" class="control-label" />
-                    <span asp-validation-for="DescendingFlagList[i]" class="text-danger"></span>
+                    <div style="height: 40px; margin-bottom: 5px; margin-left: 50px;">
+                        <input asp-for="DescendingFlagList[i]" type="checkbox" class="control-label" tabindex="1" />
+                    </div>
                 }
-            </td>
-        </tr>
-    </table>
-    <input type="submit" value="Search" class="btn btn-primary" id="notBarrageButton" tabindex="1" />
+            </div>
+            <div class="col-3">
+                <select asp-for="@Model.SetCodesList" multiple>
+                    @for (int i = 0; i < Model.TableList.Count; i++)
+                    {
+                        <optgroup label="@Model.TableList[i]">
+                            @for (int j = 0; j < Model.LabelNumList[i]; j++)
+                            {
+                                <option value="@Model.SelectCodeList[num + j].Item1">@Model.SelectCodeList[num + j].Item1</option>
+                            }
+                        </optgroup>
+                        num += Model.LabelNumList[i];
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="row justify-content-end">
+            <div class="col-1">
+                <input type="submit" value="Sort" class="btn btn-primary" id="notBarrageButton" tabindex="1" />
+            </div>
+        </div>
+    </div>
 
     <div class="container">
         <table class="table">

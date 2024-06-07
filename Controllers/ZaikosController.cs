@@ -28,7 +28,9 @@ namespace ConvenienceMVC.Controllers
 
         public IActionResult Search()
         {
-            var sokoZaikos = _context.SokoZaiko
+            ZaikoViewModel zaikoViewModel = new ZaikoViewModel();
+
+            var sokoZaikos = _context.SokoZaiko.AsNoTracking()
                 .OrderBy(soko => soko.ShiirePrdId)
                 .Include(soko => soko.ShiireMaster)
                 .ThenInclude(shi => shi.ShohinMaster)
@@ -42,11 +44,20 @@ namespace ConvenienceMVC.Controllers
                 flagList.Add(false);
             }
 
-            ZaikoViewModel zaikoViewModel = new ZaikoViewModel()
+            IList<int> numList = new List<int>();
+            for (int i = 0; i < zaikoViewModel.TableList.Count; i++)
+            {
+                int num = zaikoViewModel.SelectCodeList.Where(x => x.Item2 == i).Count();
+                numList.Add(num);
+            }
+
+            zaikoViewModel = new ZaikoViewModel()
             {
                 KeyEventDataList = keyList,
                 DescendingFlagList = flagList,
                 SokoZaikos = sokoZaikos,
+                SetCodesList = new List<string>(),
+                LabelNumList = numList,
             };
 
             return View(zaikoViewModel);
@@ -62,7 +73,7 @@ namespace ConvenienceMVC.Controllers
             }
             ModelState.Clear();
 
-            inZaikoViewModel = zaikoService.SortSokoZaiko(inZaikoViewModel);
+            inZaikoViewModel = zaikoService.SetDisplaySokoZaiko(inZaikoViewModel);
 
             return View("Search", inZaikoViewModel);
         }

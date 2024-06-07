@@ -14,6 +14,30 @@ namespace ConvenienceMVC.Models.Views.Zaikos
 
         public IList<SokoZaiko> SokoZaikos { get; set; }
 
+        [DisplayName("絞り込み(or)")]
+        public IList<string>? SetCodesList { get; set; }
+
+        public IList<string> TableList = new List<string>()
+        {
+            "仕入先コード",
+            "商品コード"
+        };
+
+        public IList<(string, int)> SelectCodeList = new List<(string, int)>()
+        {
+            ("SS001",0),
+            ("SS002",0),
+            ("SS003",0),
+            ("SS004",0),
+            ("SS005",0),
+            ("パプリカカレー",1),
+            ("DXファイアフライザー",1),
+            ("Hey！落ち着け！",1),
+            ("分割されたハッピー",1),
+        };
+
+        public IList<int>? LabelNumList { get; set; }
+
         public SelectList KeyList = new SelectList(
             new List<SelectListItem>
             {

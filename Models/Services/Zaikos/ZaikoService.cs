@@ -14,16 +14,48 @@ namespace ConvenienceMVC.Models.Services.Zaikos
         public ZaikoService(ConvenienceMVCContext context)
         {
             _context = context;
-            zaiko = new Zaiko();
+            zaiko = new Zaiko(_context);
         }
 
-        public ZaikoViewModel SortSokoZaiko(ZaikoViewModel inZaikoViewModel)
+        /*
+         * 表示倉庫在庫設定
+         * inZaikoViewModel：ソートキー、絞り込みキーを格納したViewModel
+         */
+        public ZaikoViewModel SetDisplaySokoZaiko(ZaikoViewModel inZaikoViewModel)
         {
-            inZaikoViewModel.SokoZaikos = _context.SokoZaiko.Include(soko => soko.ShiireMaster).ThenInclude(shi => shi.ShohinMaster).ToList();
+            /*
+             * 全倉庫在庫を取得
+             * 絞り込みキーが1つ以上ある場合、倉庫在庫絞り込み
+             * ソートキーを基に倉庫在庫ソート
+             * ソート後の倉庫在庫を戻り値に渡す
+             */
 
+            // 全倉庫在庫主とkジュ
+            inZaikoViewModel.SokoZaikos = _context.SokoZaiko
+                .Include(soko => soko.ShiireMaster)
+                .ThenInclude(shi => shi.ShohinMaster)
+                .ToList();
+
+            // 倉庫在庫絞り込み
+            if (inZaikoViewModel.SetCodesList != null)
+            {
+                inZaikoViewModel.SokoZaikos = zaiko.NarrowSokoZaiko(inZaikoViewModel.SetCodesList);
+            }
+
+            // 倉庫在庫ソート
             inZaikoViewModel.SokoZaikos = zaiko.SortSokoZaiko(
                 inZaikoViewModel.SokoZaikos, inZaikoViewModel.KeyEventDataList, inZaikoViewModel.DescendingFlagList);
 
+            // null回避(修正予定)
+            IList<int> numList = new List<int>();
+            for (int i = 0; i < inZaikoViewModel.TableList.Count; i++)
+            {
+                int num = inZaikoViewModel.SelectCodeList.Where(x => x.Item2 == i).Count();
+                numList.Add(num);
+            }
+            inZaikoViewModel.LabelNumList = numList;
+
+            // ソート後の倉庫在庫を戻り値に渡す
             return inZaikoViewModel;
         }
     }

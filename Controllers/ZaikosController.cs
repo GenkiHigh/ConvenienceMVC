@@ -30,12 +30,14 @@ namespace ConvenienceMVC.Controllers
         {
             ZaikoViewModel zaikoViewModel = new ZaikoViewModel();
 
+            // 倉庫在庫設定
             var sokoZaikos = _context.SokoZaiko.AsNoTracking()
                 .OrderBy(soko => soko.ShiirePrdId)
                 .Include(soko => soko.ShiireMaster)
                 .ThenInclude(shi => shi.ShohinMaster)
                 .ToList();
 
+            // ソートキーリスト設定、降順フラグリスト設定
             IList<string?> keyList = new List<string?>();
             IList<bool> flagList = new List<bool>();
             for (int i = 0; i < 3; i++)
@@ -44,6 +46,7 @@ namespace ConvenienceMVC.Controllers
                 flagList.Add(false);
             }
 
+            // 絞り込みリスト設定
             IList<int> numList = new List<int>();
             for (int i = 0; i < zaikoViewModel.TableList.Count; i++)
             {

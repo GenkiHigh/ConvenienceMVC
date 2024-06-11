@@ -1,4 +1,5 @@
-﻿using ConvenienceMVC.Models.Entities.Shiires;
+﻿using ConvenienceMVC.Models.Entities.Chumons;
+using ConvenienceMVC.Models.Entities.Shiires;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel;
 
@@ -12,10 +13,12 @@ namespace ConvenienceMVC.Models.Views.Zaikos
         [DisplayName("□昇順 / ■降順")]
         public IList<bool> DescendingFlagList { get; set; }
 
-        public IList<SokoZaiko> SokoZaikos { get; set; }
-
         [DisplayName("絞り込み(or)")]
         public IList<string>? SetCodesList { get; set; }
+
+        public IList<int>? LabelNumList { get; set; }
+
+        public IList<SokoZaiko> SokoZaikos { get; set; }
 
         public IList<string> TableList = new List<string>()
         {
@@ -36,8 +39,6 @@ namespace ConvenienceMVC.Models.Views.Zaikos
             ("分割されたハッピー",1),
         };
 
-        public IList<int>? LabelNumList { get; set; }
-
         public SelectList KeyList = new SelectList(
             new List<SelectListItem>
             {
@@ -49,6 +50,7 @@ namespace ConvenienceMVC.Models.Views.Zaikos
                 new SelectListItem { Value = nameof(SokoZaiko.SokoZaikoSu), Text = "倉庫在庫数" },
                 new SelectListItem { Value = nameof(SokoZaiko.LastShiireDate), Text = "直近仕入日" },
                 new SelectListItem { Value = nameof(SokoZaiko.LastDeliveryDate), Text = "直近払出日" },
+                new SelectListItem { Value = nameof(ChumonJissekiMeisai.ChumonZan), Text = "注文残" },
             }, "Value", "Text");
     }
 }

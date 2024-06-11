@@ -23,11 +23,39 @@ namespace ConvenienceMVC.Models.Properties.Chumons
         }
 
         /*
+         * 注文実績問い合わせ
+         * inShiireSakiCode：選択された仕入先コード
+         * inChumonDate：選択された注文日
+         */
+        public ChumonJisseki ChumonQuery(string inShiireSakiCode, DateOnly inChumonDate)
+        {
+            /*
+             * 注文実績検索画面で入力されたデータを元に注文実績がDBにあるかを判定する
+             * ある場合は対象の注文実績を戻り値に渡す
+             * 無い場合はnullを渡す
+             */
+
+            // 注文履歴が残っているかを判断
+            ChumonJisseki? isChumonJisseki = _context.ChumonJisseki
+                .Where(ch => ch.ShiireSakiId == inShiireSakiCode && ch.ChumonDate == inChumonDate)
+                .Include(chm => chm.ChumonJissekiMeisais)
+                .ThenInclude(shi => shi.ShiireMaster)
+                .ThenInclude(sho => sho.ShohinMaster)
+                .Include(ch => ch.ShiireSakiMaster)
+                .FirstOrDefault();
+
+            ChumonJisseki = isChumonJisseki;
+
+            // ある場合は対象の注文実績を、無い場合はnullを渡す
+            return ChumonJisseki;
+        }
+
+        /*
          * 注文実績作成
          * inShiireSakiCode：選択された仕入先コード
          * inChumonDate：選択された注文日
          */
-        public ChumonJisseki ChumonSakusei(string inShiireSakiCode, DateOnly inChumonDate)
+        public ChumonJisseki ChumonCreate(string inShiireSakiCode, DateOnly inChumonDate)
         {
             /*
              * 注文実績を検索された注文日で新規作成する
@@ -39,30 +67,30 @@ namespace ConvenienceMVC.Models.Properties.Chumons
              */
 
             // 注文ID発番(注文日基準)
-            string chumonId = ChumonIDCreate(inChumonDate);
+            string createdChumonId = ChumonIDCreate(inChumonDate);
 
             // 注文実績新規作成
-            ChumonJisseki = new ChumonJisseki()
+            ChumonJisseki newChumonJisseki = new ChumonJisseki()
             {
-                ChumonId = chumonId,
+                ChumonId = createdChumonId,
                 ShiireSakiId = inShiireSakiCode,
                 ChumonDate = inChumonDate,
             };
 
             // 仕入マスタ取得
-            var shiireMastars = _context.ShiireMaster.AsNoTracking()
+            IOrderedQueryable<ShiireMaster> queriedShiireMastars = _context.ShiireMaster.AsNoTracking()
                 .Where(sm => sm.ShiireSakiId == inShiireSakiCode)
                 .Include(sm => sm.ShiireSakiMaster)
                 .Include(sm => sm.ShohinMaster)
                 .OrderBy(sm => sm.ShohinId);
 
             // 空の注文実績明細作成、新規作成した注文実績に追加
-            ChumonJisseki.ChumonJissekiMeisais = new List<ChumonJissekiMeisai>();
-            foreach (var shiire in shiireMastars)
+            IList<ChumonJissekiMeisai> newChumonJissekiMeisais = new List<ChumonJissekiMeisai>();
+            foreach (ShiireMaster shiire in queriedShiireMastars)
             {
-                ChumonJisseki.ChumonJissekiMeisais.Add(new ChumonJissekiMeisai()
+                newChumonJissekiMeisais.Add(new ChumonJissekiMeisai()
                 {
-                    ChumonId = chumonId,
+                    ChumonId = createdChumonId,
                     ShiireSakiId = inShiireSakiCode,
                     ShiirePrdId = shiire.ShiirePrdId,
                     ShohinId = shiire.ShohinId,
@@ -72,33 +100,11 @@ namespace ConvenienceMVC.Models.Properties.Chumons
                 });
             }
 
+            // 新規注文実績を設定
+            newChumonJisseki.ChumonJissekiMeisais = newChumonJissekiMeisais;
+            ChumonJisseki = newChumonJisseki;
+
             // 新規作成した注文実績及び明細を渡す
-            return ChumonJisseki;
-        }
-
-        /*
-         * 注文実績問い合わせ
-         * inShiireSakiCode：選択された仕入先コード
-         * inChumonDate：選択された注文日
-         */
-        public ChumonJisseki ChumonToiawase(string inShiireSakiCode, DateOnly inChumonDate)
-        {
-            /*
-             * 注文実績検索画面で入力されたデータを元に注文実績がDBにあるかを判定する
-             * ある場合は対象の注文実績を戻り値に渡す
-             * 無い場合はnullを渡す
-             */
-
-            // 注文履歴が残っているかを判断
-            ChumonJisseki = _context.ChumonJisseki
-                .Where(ch => ch.ShiireSakiId == inShiireSakiCode && ch.ChumonDate == inChumonDate)
-                .Include(chm => chm.ChumonJissekiMeisais)
-                .ThenInclude(shi => shi.ShiireMaster)
-                .ThenInclude(sho => sho.ShohinMaster)
-                .Include(ch => ch.ShiireSakiMaster)
-                .FirstOrDefault();
-
-            // ある場合は対象の注文実績を、無い場合はnullを渡す
             return ChumonJisseki;
         }
 
@@ -118,55 +124,57 @@ namespace ConvenienceMVC.Models.Properties.Chumons
              */
 
             // その注文実績が既にある場合更新、新規の場合追加
-            var config = new MapperConfiguration(cfg => cfg.CreateMap<ChumonJisseki, ChumonJisseki>());
-            var mapper = new Mapper(config);
-            ChumonJisseki chumonJisseki = mapper.Map<ChumonJisseki>(ChumonJisseki);
-
-            chumonJisseki = _context.ChumonJisseki.AsNoTracking()
+            ChumonJisseki? isChumonJisseki = _context.ChumonJisseki.AsNoTracking()
                 .Where(chu => chu.ChumonId == inChumonJisseki.ChumonId && chu.ShiireSakiId == inChumonJisseki.ShiireSakiId)
                 .Include(chu => chu.ChumonJissekiMeisais)
                 .FirstOrDefault();
 
             // DBにデータがある場合
-            if (chumonJisseki != null)
+            if (isChumonJisseki != null)
             {
                 // 楽観的排他制御
                 var current = _context.Entry(inChumonJisseki).Property(v => v.Version).CurrentValue;
-                var current2 = _context.Entry(chumonJisseki).Property(v => v.Version).CurrentValue;
+                var current2 = _context.Entry(isChumonJisseki).Property(v => v.Version).CurrentValue;
                 if (current != current2)
                 {
                     throw new Exception("既に別のデータが更新されています");
                 }
 
-                chumonJisseki.ChumonJissekiMeisais = _context.ChumonJissekiMeisai.AsNoTracking()
-                    .Where(mei => mei.ChumonId == chumonJisseki.ChumonId)
+                var config = new MapperConfiguration(cfg => cfg.CreateMap<ChumonJisseki, ChumonJisseki>());
+                var mapper = new Mapper(config);
+                ChumonJisseki mapedChumonJisseki = mapper.Map<ChumonJisseki>(isChumonJisseki);
+
+                mapedChumonJisseki.ChumonJissekiMeisais = _context.ChumonJissekiMeisai.AsNoTracking()
+                    .Where(mei => mei.ChumonId == mapedChumonJisseki.ChumonId)
                     .OrderBy(mei => mei.ShohinId).ToList();
 
                 // 注文数残を更新
-                for (int i = 0; i < ChumonJisseki.ChumonJissekiMeisais.Count; i++)
+                for (int meisaisCounter = 0; meisaisCounter < mapedChumonJisseki.ChumonJissekiMeisais.Count; meisaisCounter++)
                 {
                     // 初期表示の値と入力後の値の差分、注文数残を変動
-                    decimal chumonSa = inChumonJisseki.ChumonJissekiMeisais[i].ChumonSu - chumonJisseki.ChumonJissekiMeisais[i].ChumonSu;
-                    chumonJisseki.ChumonJissekiMeisais[i].ChumonSu += chumonSa;
-                    chumonJisseki.ChumonJissekiMeisais[i].ChumonZan += chumonSa;
+                    decimal chumonSa = inChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonSu -
+                        mapedChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonSu;
+                    mapedChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonSu += chumonSa;
+                    mapedChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonZan += chumonSa;
 
                     // 注文残が0未満にならないよう調整
-                    if (chumonJisseki.ChumonJissekiMeisais[i].ChumonZan < 0)
+                    if (mapedChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonZan < 0)
                     {
-                        chumonJisseki.ChumonJissekiMeisais[i].ChumonSu -= chumonJisseki.ChumonJissekiMeisais[i].ChumonZan;
-                        chumonJisseki.ChumonJissekiMeisais[i].ChumonZan = 0;
+                        mapedChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonSu -=
+                            mapedChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonZan;
+                        mapedChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonZan = 0;
                     }
                 }
 
-                // version更新
-                _context.ChumonJisseki.Update(chumonJisseki);
-                foreach (var meisai in chumonJisseki.ChumonJissekiMeisais)
+                // 更新
+                _context.ChumonJisseki.Update(mapedChumonJisseki);
+                foreach (ChumonJissekiMeisai meisai in mapedChumonJisseki.ChumonJissekiMeisais)
                 {
                     _context.ChumonJissekiMeisai.Update(meisai);
                 }
 
                 // 注文実績を更新
-                ChumonJisseki = chumonJisseki;
+                ChumonJisseki = mapedChumonJisseki;
             }
             // 追加
             else
@@ -175,7 +183,7 @@ namespace ConvenienceMVC.Models.Properties.Chumons
                 _context.ChumonJisseki.Add(inChumonJisseki);
 
                 // 注文実績明細を追加
-                foreach (var meisai in inChumonJisseki.ChumonJissekiMeisais)
+                foreach (ChumonJissekiMeisai meisai in inChumonJisseki.ChumonJissekiMeisais)
                 {
                     _context.ChumonJissekiMeisai.Add(meisai);
                 }
@@ -212,17 +220,17 @@ namespace ConvenienceMVC.Models.Properties.Chumons
             }
 
             // 注文ID、選択注文日、実績内注文日、注文番号を設定
-            string chumonId = _context.ChumonJisseki
+            string queriedChumonId = _context.ChumonJisseki.AsNoTracking()
                 .OrderBy(x => x.ChumonId).Select(x => x.ChumonId).Last();
-            string chumonDate = inChumonDate.ToString("yyyyMMdd-");
-            string getChumonDate = chumonId.Substring(0, 9);
-            string num = chumonId.Substring(chumonId.Length - 3);
+            string selectChumonDate = inChumonDate.ToString("yyyyMMdd-");
+            string queriedChumonDate = queriedChumonId.Substring(0, 9);
+            string chumonNumber = queriedChumonId.Substring(queriedChumonId.Length - 3);
 
             // 入力した注文日で初めての注文の場合注文番号を001に、既に注文済みなら番号を1追加
-            num = chumonDate == getChumonDate ? (uint.Parse(num) + 1).ToString("D3") : "001";
+            chumonNumber = selectChumonDate == queriedChumonDate ? (uint.Parse(chumonNumber) + 1).ToString("D3") : "001";
 
             // "注文年月日-注文番号三桁"を渡す(その日の注文実績数が1000以上の場合nullを渡す)
-            return uint.Parse(num) >= 999 ? null : chumonDate + num;
+            return uint.Parse(chumonNumber) >= 999 ? null : selectChumonDate + chumonNumber;
         }
     }
 }

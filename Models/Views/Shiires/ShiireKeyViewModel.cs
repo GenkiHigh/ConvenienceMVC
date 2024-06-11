@@ -13,6 +13,6 @@ namespace ConvenienceMVC.Models.Views.Shiires
         [Required]
         public string ChumonId { get; set; }
 
-        public List<SelectListItem>? ChumonIdList { get; set; }
+        public List<SelectListItem>? ChumonIds { get; set; }
     }
 }

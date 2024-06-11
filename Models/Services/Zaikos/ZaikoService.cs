@@ -30,7 +30,7 @@ namespace ConvenienceMVC.Models.Services.Zaikos
              * ソート後の倉庫在庫を戻り値に渡す
              */
 
-            // 全倉庫在庫主とkジュ
+            // 全倉庫在庫取得
             inZaikoViewModel.SokoZaikos = _context.SokoZaiko
                 .Include(soko => soko.ShiireMaster)
                 .ThenInclude(shi => shi.ShohinMaster)

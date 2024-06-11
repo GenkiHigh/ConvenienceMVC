@@ -12,21 +12,21 @@ namespace ConvenienceMVC.Models.Interfaces.Shiires
         public IList<SokoZaiko> SokoZaikos { get; set; }
 
         // 仕入実績問い合わせ
-        public IList<ShiireJisseki> ShiireToiawase(string inChumonId);
+        public IList<ShiireJisseki> ShiireQuery(string inChumonId);
         // 仕入実績作成
-        public IList<ShiireJisseki> ShiireSakusei(string inChumonId);
+        public IList<ShiireJisseki> ShiireCreate(string inChumonId);
         // 仕入実績更新
         public IList<ShiireJisseki> ShiireUpdate(IList<ShiireJisseki> inShiireJissekis);
 
         // 倉庫在庫問い合わせ
-        public IList<SokoZaiko> ZaikoToiawase(string inShiireSakiId);
+        public IList<SokoZaiko> ZaikoQuery(string inShiireSakiId);
         // 倉庫在庫作成
-        public IList<SokoZaiko> ZaikoSakusei(string inShiireSakiId);
+        public IList<SokoZaiko> ZaikoCreate(string inShiireSakiId);
         // 倉庫在庫更新
         public IList<SokoZaiko> ZaikoUpdate(IList<SokoZaiko> inSokoZaikos);
 
         // 注文実績明細問い合わせ
-        public bool ChumonJissekiMeisaiToiawase(string inChumonId);
+        public bool IsChumonJissekiMeisai(string inChumonId);
         // 注文残倉庫在庫数変動
         public ShiireViewModel ChumonZanBalance(ShiireViewModel inShiireViewModel);
     }

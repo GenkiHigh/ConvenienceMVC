@@ -15,6 +15,7 @@ namespace ConvenienceMVC.Controllers
     {
         // DBコンテキスト
         private readonly ConvenienceMVCContext _context;
+
         // 仕入サービスインターフェース
         private IShiireService ShiireService;
 
@@ -43,8 +44,8 @@ namespace ConvenienceMVC.Controllers
         public IActionResult Search()
         {
             // 仕入実績、倉庫在庫検索用ViewModelを設定、Viewに渡す
-            var shiireKeyViewModel = SetShiireKeyViewModel();
-            return View(shiireKeyViewModel);
+            ShiireKeyViewModel queriedShiireKeyViewModel = SetShiireKeyViewModel();
+            return View(queriedShiireKeyViewModel);
         }
         /*
          * 仕入実績、倉庫在庫検索(検索実行)
@@ -68,13 +69,13 @@ namespace ConvenienceMVC.Controllers
             };
 
             // 仕入実績、倉庫在庫設定
-            ShiireViewModel shiireViewModel = ShiireService.ShiireSetting(inShiireKeyViewModel.ChumonId);
+            ShiireViewModel queriedShiireViewModel = ShiireService.ShiireSetting(inShiireKeyViewModel.ChumonId);
 
             // 仕入実績、倉庫在庫保存
             KeepObjects();
 
             // 仕入実績、倉庫在庫更新にデータを渡しながら移動
-            return View("Update", shiireViewModel);
+            return View("Update", queriedShiireViewModel);
         }
 
         /*
@@ -114,13 +115,13 @@ namespace ConvenienceMVC.Controllers
             GetObjects();
 
             // 仕入実績、倉庫在庫更新
-            inShiireViewModel = await ShiireService.ShiireCommit(inShiireViewModel);
+            ShiireViewModel queriedShiireViewModel = await ShiireService.ShiireCommit(inShiireViewModel);
 
             // 仕入実績、倉庫在庫保存
             KeepObjects();
 
             // 更新画面にデータを渡しながら移動
-            return View("Update", inShiireViewModel);
+            return View("Update", queriedShiireViewModel);
         }
 
         // 仕入実績、倉庫在庫検索用ViewModel設定
@@ -162,7 +163,7 @@ namespace ConvenienceMVC.Controllers
             return new ShiireKeyViewModel()
             {
                 ChumonId = null,
-                ChumonIdList = list,
+                ChumonIds = list,
             };
         }
 

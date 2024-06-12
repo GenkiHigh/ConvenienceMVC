@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using ConvenienceMVC.Models.Entities.Chumons;
+﻿using ConvenienceMVC.Models.Entities.Chumons;
 using ConvenienceMVC.Models.Interfaces.Chumons;
 using ConvenienceMVC_Context;
 using Microsoft.EntityFrameworkCore;
@@ -124,7 +123,7 @@ namespace ConvenienceMVC.Models.Properties.Chumons
              */
 
             // その注文実績が既にある場合更新、新規の場合追加
-            ChumonJisseki? isChumonJisseki = _context.ChumonJisseki.AsNoTracking()
+            ChumonJisseki? isChumonJisseki = _context.ChumonJisseki
                 .Where(chu => chu.ChumonId == inChumonJisseki.ChumonId && chu.ShiireSakiId == inChumonJisseki.ShiireSakiId)
                 .Include(chu => chu.ChumonJissekiMeisais)
                 .FirstOrDefault();
@@ -140,41 +139,41 @@ namespace ConvenienceMVC.Models.Properties.Chumons
                     throw new Exception("既に別のデータが更新されています");
                 }
 
-                var config = new MapperConfiguration(cfg => cfg.CreateMap<ChumonJisseki, ChumonJisseki>());
-                var mapper = new Mapper(config);
-                ChumonJisseki mapedChumonJisseki = mapper.Map<ChumonJisseki>(isChumonJisseki);
+                //var config = new MapperConfiguration(cfg => cfg.CreateMap<ChumonJisseki, ChumonJisseki>());
+                //var mapper = new Mapper(config);
+                //ChumonJisseki mapedChumonJisseki = mapper.Map<ChumonJisseki>(isChumonJisseki);
 
-                mapedChumonJisseki.ChumonJissekiMeisais = _context.ChumonJissekiMeisai.AsNoTracking()
-                    .Where(mei => mei.ChumonId == mapedChumonJisseki.ChumonId)
-                    .OrderBy(mei => mei.ShohinId).ToList();
+                //mapedChumonJisseki.ChumonJissekiMeisais = _context.ChumonJissekiMeisai
+                //    .Where(mei => mei.ChumonId == mapedChumonJisseki.ChumonId)
+                //    .OrderBy(mei => mei.ShohinId).ToList();
 
                 // 注文数残を更新
-                for (int meisaisCounter = 0; meisaisCounter < mapedChumonJisseki.ChumonJissekiMeisais.Count; meisaisCounter++)
+                for (int meisaisCounter = 0; meisaisCounter < isChumonJisseki.ChumonJissekiMeisais.Count; meisaisCounter++)
                 {
                     // 初期表示の値と入力後の値の差分、注文数残を変動
                     decimal chumonSa = inChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonSu -
-                        mapedChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonSu;
-                    mapedChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonSu += chumonSa;
-                    mapedChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonZan += chumonSa;
+                        isChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonSu;
+                    isChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonSu += chumonSa;
+                    isChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonZan += chumonSa;
 
                     // 注文残が0未満にならないよう調整
-                    if (mapedChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonZan < 0)
+                    if (isChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonZan < 0)
                     {
-                        mapedChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonSu -=
-                            mapedChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonZan;
-                        mapedChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonZan = 0;
+                        isChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonSu -=
+                            isChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonZan;
+                        isChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonZan = 0;
                     }
                 }
 
                 // 更新
-                _context.ChumonJisseki.Update(mapedChumonJisseki);
-                foreach (ChumonJissekiMeisai meisai in mapedChumonJisseki.ChumonJissekiMeisais)
+                _context.ChumonJisseki.Update(isChumonJisseki);
+                foreach (ChumonJissekiMeisai meisai in isChumonJisseki.ChumonJissekiMeisais)
                 {
                     _context.ChumonJissekiMeisai.Update(meisai);
                 }
 
                 // 注文実績を更新
-                ChumonJisseki = mapedChumonJisseki;
+                ChumonJisseki = isChumonJisseki;
             }
             // 追加
             else

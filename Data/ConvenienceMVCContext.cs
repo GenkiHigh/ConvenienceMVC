@@ -1,5 +1,6 @@
 ﻿using ConvenienceMVC.Models.Entities.Chumons;
 using ConvenienceMVC.Models.Entities.Shiires;
+using ConvenienceMVC.Models.Entities.UserLogs;
 using Microsoft.EntityFrameworkCore;
 
 namespace ConvenienceMVC_Context
@@ -21,5 +22,8 @@ namespace ConvenienceMVC_Context
         // 仕入
         public DbSet<ShiireJisseki> ShiireJisseki { get; set; } = default!;
         public DbSet<SokoZaiko> SokoZaiko { get; set; } = default!;
+
+        // ユーザー情報
+        public DbSet<UserLog> UserLog { get; set; } = default!;
     }
 }

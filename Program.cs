@@ -19,8 +19,13 @@ try
     // Add services to the container.
     builder.Services.AddControllersWithViews().AddSessionStateTempDataProvider();
 
-    // セッションの追加
-    builder.Services.AddSession();
+    builder.Services.AddDistributedMemoryCache();
+    builder.Services.AddSession(options =>
+    {
+        options.IdleTimeout = TimeSpan.FromMinutes(30); // セッションの有効期限を30分に設定
+        options.Cookie.HttpOnly = true; // クッキーをHTTP通信に限定
+        options.Cookie.IsEssential = true; // GDPR対応
+    });
 
     // NLog: Setup NLog for Dependency injection
     builder.Logging.ClearProviders();

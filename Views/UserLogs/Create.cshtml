@@ -1,0 +1,75 @@
+﻿@using ConvenienceMVC.Models.Views.UserLogs
+@model UserCreateViewModel
+@{
+    ViewData["Title"] = "Create";
+}
+
+<form asp-action="Create" id="notBarrageForm">
+    <div class="container">
+        <div class="row">
+            <div class="col">Account Create</div>
+        </div>
+
+        <div class="row">
+            <div class="col-2">ユーザー名</div>
+            <div class="col-4">
+                <p>
+                    <input asp-for="UserName" class="form-control" tabindex="1"></input>
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-2">メールアドレス</div>
+            <div class="col-4">
+                <p>
+                    <input type="email" asp-for="MailAddress" class="form-control" tabindex="1"></input>
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-2">パスワード</div>
+            <div class="col-4">
+                <p>
+                    <input type="password" asp-for="Password" class="form-control" tabindex="1"></input>
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-2">パスワードをもう一度入力ください</div>
+            <div class="col-4">
+                <p>
+                    <input type="password" asp-for="RePassword" class="form-control" tabindex="1"></input>
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <p>
+                        <input type="submit" value="Create" class="btn btn-primary" id="notBarrageButton" tabindex="1" />
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col">
+                <p>
+                    <a asp-action="Login" tabindex="1">ログイン</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script src="/js/NotBarrage.js"></script>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

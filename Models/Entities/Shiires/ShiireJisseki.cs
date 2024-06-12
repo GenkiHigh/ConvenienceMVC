@@ -1,4 +1,5 @@
 ﻿using ConvenienceMVC.Models.Entities.Chumons;
+using ConvenienceMVC.Models.Entities.UserLogs;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -54,10 +55,19 @@ namespace ConvenienceMVC.Models.Entities.Shiires
         [Required]
         public decimal NonyuSu { get; set; }
 
+        [Column("user_id")]
+        [DisplayName("ユーザーID")]
+        [MaxLength(20)]
+        [Required]
+        public string UserId { get; set; }
+
         [Timestamp]
         public uint Version { get; set; }
 
         [ForeignKey(nameof(ChumonId) + "," + nameof(ShiireSakiId) + "," + nameof(ShiirePrdId) + "," + nameof(ShohinId))]
         public virtual ChumonJissekiMeisai? ChumonJissekiMeisai { get; set; }
+
+        [ForeignKey(nameof(UserId))]
+        public virtual UserLog? UserLog { get; set; }
     }
 }

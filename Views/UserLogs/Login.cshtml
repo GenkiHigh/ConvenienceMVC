@@ -1,0 +1,57 @@
+﻿@using ConvenienceMVC.Models.Views.UserLogs
+@model UserLoginViewModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<form asp-action="Login" id="notBarrageForm">
+    <div class="container">
+        <div class="row">
+            <div class="col">Login</div>
+        </div>
+
+        <div class="row">
+            <div class="col-2">メールアドレス</div>
+            <div class="col-4">
+                <p>
+                    <input type="email" asp-for="MailAddress" class="form-control" tabindex="1"></input>
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-2">パスワード</div>
+            <div class="col-4">
+                <p>
+                    <input type="password" asp-for="Password" class="form-control" tabindex="1"></input>
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <p>
+                        <input type="submit" value="Login" class="btn btn-primary" id="notBarrageButton" tabindex="1" />
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col">
+                <p>
+                    <a asp-action="Create" tabindex="1">アカウント作成</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script src="/js/NotBarrage.js"></script>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

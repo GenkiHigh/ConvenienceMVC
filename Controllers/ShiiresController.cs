@@ -1,4 +1,5 @@
-﻿using ConvenienceMVC.Models.Entities.Shiires;
+﻿using ConvenienceMVC.Models.Entities.Chumons;
+using ConvenienceMVC.Models.Entities.Shiires;
 using ConvenienceMVC.Models.Interfaces.Shiires;
 using ConvenienceMVC.Models.Services.Shiires;
 using ConvenienceMVC.Models.Views.Shiires;
@@ -139,21 +140,21 @@ namespace ConvenienceMVC.Controllers
             // 全注文コードを格納したリスト
             var checkList = _context.ChumonJisseki.Include(chu => chu.ChumonJissekiMeisais).ToList();
             // 注文コードに対応する注文実績明細の注文残が全て0のデータを非表示にする
-            foreach (var item in checkList)
+            foreach (ChumonJisseki check in checkList)
             {
                 // 注文残が0かを判定
-                bool removeFlag = true;
-                foreach (var chu in item.ChumonJissekiMeisais)
+                bool isRemove = true;
+                foreach (ChumonJissekiMeisai meisai in check.ChumonJissekiMeisais)
                 {
-                    if (chu.ChumonZan != 0) removeFlag = false;
+                    if (meisai.ChumonZan != 0) isRemove = false;
                 }
                 // 注文残が全て0の場合、対象データ削除
-                if (removeFlag) transList.Remove(item);
+                if (isRemove) transList.Remove(check);
             }
 
             // データ非表示後の注文コードリストの表示内容を設定
             // データ全体を降順にソート(上から注文実績作成日時が最近のデータが並ぶ)
-            var list = transList.Select(c => new SelectListItem
+            List<SelectListItem> list = transList.Select(c => new SelectListItem
             {
                 Value = c.ChumonId,
                 Text = c.ChumonId + " " + c.ShiireSakiMaster.ShiireSakiKaisya,
@@ -171,7 +172,7 @@ namespace ConvenienceMVC.Controllers
         private void KeepObjects()
         {
             // シリアライズしてデータ保存
-            var settings = new JsonSerializerSettings
+            JsonSerializerSettings settings = new JsonSerializerSettings
             {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
             };

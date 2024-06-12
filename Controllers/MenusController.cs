@@ -1,6 +1,8 @@
 ﻿using ConvenienceMVC.Models.Entities.Chumons;
+using ConvenienceMVC.Models.Entities.UserLogs;
 using ConvenienceMVC_Context;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace ConvenienceMVC.Controllers
 {
@@ -16,6 +18,12 @@ namespace ConvenienceMVC.Controllers
 
         public IActionResult Index()
         {
+            // ログイン確認
+            if (!CheckUserSession())
+            {
+                return RedirectToAction("Index", "UserLogs", new { inPageName = "Menus" });
+            }
+
             return View();
         }
 
@@ -91,6 +99,35 @@ namespace ConvenienceMVC.Controllers
             }
 
             return unit;
+        }
+
+        private bool CheckUserSession()
+        {
+            // セッション情報取得
+            var userSession = HttpContext.Session.GetString("MyUserLog");
+
+            // セッション情報が無い場合
+            if (userSession == null)
+            {
+                // ログインページに飛ぶ
+                return false;
+
+                UserLog userLogin = new UserLog()
+                {
+                    UserId = "000000000001",
+                    UserName = "テスト太郎",
+                    MailAddress = "test@gmail.com",
+                    Password = "aaaaaaaa",
+                    LastLoginDate = DateTime.Now,
+                };
+
+                var settings = new JsonSerializerSettings
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                };
+                HttpContext.Session.SetString("MyInformation", JsonConvert.SerializeObject(userLogin, settings));
+            }
+            else return true;
         }
     }
 }

@@ -110,6 +110,7 @@ namespace ConvenienceMVC.Models.Services.Chumons
 
             // DB更新
             await _context.SaveChangesAsync();
+
             // 注文実績必要様をインクルード
             updateChumonJisseki = ChumonJissekiInclude(updateChumonJisseki);
 

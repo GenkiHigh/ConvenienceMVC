@@ -38,6 +38,12 @@ namespace ConvenienceMVC.Migrations
                         .HasColumnType("date")
                         .HasColumnName("chumon_date");
 
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("user_id");
+
                     b.Property<uint>("Version")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
@@ -47,6 +53,8 @@ namespace ConvenienceMVC.Migrations
                     b.HasKey("ChumonId", "ShiireSakiId");
 
                     b.HasIndex("ShiireSakiId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("chumon_jisseki");
                 });
@@ -82,12 +90,6 @@ namespace ConvenienceMVC.Migrations
                         .HasPrecision(10, 2)
                         .HasColumnType("numeric(10,2)")
                         .HasColumnName("chumon_zan");
-
-                    b.Property<uint>("Version")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
-                        .HasColumnName("xmin");
 
                     b.HasKey("ChumonId", "ShiireSakiId", "ShiirePrdId", "ShohinId");
 
@@ -263,7 +265,21 @@ namespace ConvenienceMVC.Migrations
                         .HasColumnType("character varying(10)")
                         .HasColumnName("shohin_code");
 
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("user_id");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
                     b.HasKey("ChumonId", "ShiireDate", "SeqByShiireDate", "ShiireSakiId", "ShiirePrdId");
+
+                    b.HasIndex("UserId");
 
                     b.HasIndex("ChumonId", "ShiireSakiId", "ShiirePrdId", "ShohinId");
 
@@ -305,9 +321,49 @@ namespace ConvenienceMVC.Migrations
                         .HasColumnType("numeric(10,2)")
                         .HasColumnName("soko_zaiko_su");
 
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
                     b.HasKey("ShiireSakiId", "ShiirePrdId", "ShohinId");
 
                     b.ToTable("soko_zaiko");
+                });
+
+            modelBuilder.Entity("ConvenienceMVC.Models.Entities.UserLogs.UserLog", b =>
+                {
+                    b.Property<string>("MailAddress")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("mail_adress");
+
+                    b.Property<DateTime>("LastLoginDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("last_login_date");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("password");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("user_name");
+
+                    b.HasKey("MailAddress");
+
+                    b.ToTable("user_login");
                 });
 
             modelBuilder.Entity("ConvenienceMVC.Models.Entities.Chumons.ChumonJisseki", b =>
@@ -318,7 +374,15 @@ namespace ConvenienceMVC.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ConvenienceMVC.Models.Entities.UserLogs.UserLog", "UserLog")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("ShiireSakiMaster");
+
+                    b.Navigation("UserLog");
                 });
 
             modelBuilder.Entity("ConvenienceMVC.Models.Entities.Chumons.ChumonJissekiMeisai", b =>
@@ -361,6 +425,12 @@ namespace ConvenienceMVC.Migrations
 
             modelBuilder.Entity("ConvenienceMVC.Models.Entities.Shiires.ShiireJisseki", b =>
                 {
+                    b.HasOne("ConvenienceMVC.Models.Entities.UserLogs.UserLog", "UserLog")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("ConvenienceMVC.Models.Entities.Chumons.ChumonJissekiMeisai", "ChumonJissekiMeisai")
                         .WithMany()
                         .HasForeignKey("ChumonId", "ShiireSakiId", "ShiirePrdId", "ShohinId")
@@ -368,6 +438,8 @@ namespace ConvenienceMVC.Migrations
                         .IsRequired();
 
                     b.Navigation("ChumonJissekiMeisai");
+
+                    b.Navigation("UserLog");
                 });
 
             modelBuilder.Entity("ConvenienceMVC.Models.Entities.Shiires.SokoZaiko", b =>

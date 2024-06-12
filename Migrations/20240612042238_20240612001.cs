@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ConvenienceMVC.Migrations
 {
     /// <inheritdoc />
-    public partial class _20240530001 : Migration
+    public partial class _20240612001 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -44,23 +44,18 @@ namespace ConvenienceMVC.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "chumon_jisseki",
+                name: "user_login",
                 columns: table => new
                 {
-                    chumon_code = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
-                    shiire_saki_code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
-                    chumon_date = table.Column<DateOnly>(type: "date", nullable: true),
-                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
+                    mail_adress = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    user_id = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    user_name = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    password = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    last_login_date = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_chumon_jisseki", x => new { x.chumon_code, x.shiire_saki_code });
-                    table.ForeignKey(
-                        name: "FK_chumon_jisseki_shiire_saki_master_shiire_saki_code",
-                        column: x => x.shiire_saki_code,
-                        principalTable: "shiire_saki_master",
-                        principalColumn: "shiire_saki_code",
-                        onDelete: ReferentialAction.Cascade);
+                    table.PrimaryKey("PK_user_login", x => x.mail_adress);
                 });
 
             migrationBuilder.CreateTable(
@@ -93,6 +88,57 @@ namespace ConvenienceMVC.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "chumon_jisseki",
+                columns: table => new
+                {
+                    chumon_code = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    shiire_saki_code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
+                    chumon_date = table.Column<DateOnly>(type: "date", nullable: true),
+                    user_id = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_chumon_jisseki", x => new { x.chumon_code, x.shiire_saki_code });
+                    table.ForeignKey(
+                        name: "FK_chumon_jisseki_shiire_saki_master_shiire_saki_code",
+                        column: x => x.shiire_saki_code,
+                        principalTable: "shiire_saki_master",
+                        principalColumn: "shiire_saki_code",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_chumon_jisseki_user_login_user_id",
+                        column: x => x.user_id,
+                        principalTable: "user_login",
+                        principalColumn: "mail_adress",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "soko_zaiko",
+                columns: table => new
+                {
+                    shiire_saki_code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
+                    shiire_prd_code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
+                    shohin_code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
+                    soko_zaiko_case_su = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
+                    soko_zaiko_su = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
+                    last_shiire_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    last_delivery_date = table.Column<DateOnly>(type: "date", nullable: true),
+                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_soko_zaiko", x => new { x.shiire_saki_code, x.shiire_prd_code, x.shohin_code });
+                    table.ForeignKey(
+                        name: "FK_soko_zaiko_shiire_master_shiire_saki_code_shiire_prd_code_s~",
+                        columns: x => new { x.shiire_saki_code, x.shiire_prd_code, x.shohin_code },
+                        principalTable: "shiire_master",
+                        principalColumns: new[] { "shiire_saki_code", "shiire_prd_code", "shohin_code" },
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "chumon_jisseki_meisai",
                 columns: table => new
                 {
@@ -101,8 +147,7 @@ namespace ConvenienceMVC.Migrations
                     shiire_prd_code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
                     shohin_code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
                     chumon_su = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
-                    chumon_zan = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
-                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
+                    chumon_zan = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -122,29 +167,6 @@ namespace ConvenienceMVC.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "soko_zaiko",
-                columns: table => new
-                {
-                    shiire_saki_code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
-                    shiire_prd_code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
-                    shohin_code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
-                    soko_zaiko_case_su = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
-                    soko_zaiko_su = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
-                    last_shiire_date = table.Column<DateOnly>(type: "date", nullable: false),
-                    last_delivery_date = table.Column<DateOnly>(type: "date", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_soko_zaiko", x => new { x.shiire_saki_code, x.shiire_prd_code, x.shohin_code });
-                    table.ForeignKey(
-                        name: "FK_soko_zaiko_shiire_master_shiire_saki_code_shiire_prd_code_s~",
-                        columns: x => new { x.shiire_saki_code, x.shiire_prd_code, x.shohin_code },
-                        principalTable: "shiire_master",
-                        principalColumns: new[] { "shiire_saki_code", "shiire_prd_code", "shohin_code" },
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "shiire_jisseki",
                 columns: table => new
                 {
@@ -155,7 +177,9 @@ namespace ConvenienceMVC.Migrations
                     shiire_prd_code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
                     shiire_datetime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     shohin_code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
-                    nonyu_su = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false)
+                    nonyu_su = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
+                    user_id = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -166,12 +190,23 @@ namespace ConvenienceMVC.Migrations
                         principalTable: "chumon_jisseki_meisai",
                         principalColumns: new[] { "chumon_code", "shiire_saki_code", "shiire_prd_code", "shohin_code" },
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_shiire_jisseki_user_login_user_id",
+                        column: x => x.user_id,
+                        principalTable: "user_login",
+                        principalColumn: "mail_adress",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_chumon_jisseki_shiire_saki_code",
                 table: "chumon_jisseki",
                 column: "shiire_saki_code");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_chumon_jisseki_user_id",
+                table: "chumon_jisseki",
+                column: "user_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_chumon_jisseki_meisai_shiire_saki_code_shiire_prd_code_shoh~",
@@ -182,6 +217,11 @@ namespace ConvenienceMVC.Migrations
                 name: "IX_shiire_jisseki_chumon_code_shiire_saki_code_shiire_prd_code~",
                 table: "shiire_jisseki",
                 columns: new[] { "chumon_code", "shiire_saki_code", "shiire_prd_code", "shohin_code" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_shiire_jisseki_user_id",
+                table: "shiire_jisseki",
+                column: "user_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_shiire_master_shohin_code",
@@ -206,6 +246,9 @@ namespace ConvenienceMVC.Migrations
 
             migrationBuilder.DropTable(
                 name: "shiire_master");
+
+            migrationBuilder.DropTable(
+                name: "user_login");
 
             migrationBuilder.DropTable(
                 name: "shiire_saki_master");

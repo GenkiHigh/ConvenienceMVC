@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ConvenienceMVC.Models.Entities.UserLogs;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -25,11 +26,20 @@ namespace ConvenienceMVC.Models.Entities.Chumons
         [DisplayName("注文日")]
         public DateOnly? ChumonDate { get; set; }
 
+        [Column("user_id")]
+        [DisplayName("ユーザーID")]
+        [MaxLength(20)]
+        [Required]
+        public string UserId { get; set; }
+
         [Timestamp]
         public uint Version { get; set; }
 
         [ForeignKey(nameof(ShiireSakiId))]
         public virtual ShiireSakiMaster? ShiireSakiMaster { get; set; }
+
+        [ForeignKey(nameof(UserId))]
+        public virtual UserLog? UserLog { get; set; }
 
         public virtual IList<ChumonJissekiMeisai>? ChumonJissekiMeisais { get; set; } = new List<ChumonJissekiMeisai>() { };
     }

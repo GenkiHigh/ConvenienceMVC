@@ -147,8 +147,8 @@ namespace ConvenienceMVC.Models.Services.Shiires
             // 更新後の仕入実績、倉庫在庫を格納したViewModelを作成し渡す
             return new ShiireViewModel()
             {
-                ShiireJissekis = inShiireViewModel.ShiireJissekis,
-                SokoZaikos = inShiireViewModel.SokoZaikos,
+                ShiireJissekis = Shiire.ShiireJissekis,
+                SokoZaikos = Shiire.SokoZaikos,
                 IsNormal = isChange ? true : false,
                 Remark = isChange ? "更新完了" : string.Empty,
             };

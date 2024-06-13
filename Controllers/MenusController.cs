@@ -1,4 +1,5 @@
 ﻿using ConvenienceMVC.Models.Entities.Chumons;
+using ConvenienceMVC.Models.Entities.UserLogs;
 using ConvenienceMVC.Models.Interfaces.Defines;
 using ConvenienceMVC.Models.Services.Defines;
 using ConvenienceMVC_Context;
@@ -25,7 +26,8 @@ namespace ConvenienceMVC.Controllers
         public IActionResult Index()
         {
             // ログインしていない場合
-            if (!DefineService.IsUserSession())
+            UserLog queriedUserLog = DefineService.IsUserSession();
+            if (DefineService.IsUserSession() == null)
             {
                 // ログインページに移動
                 return RedirectToAction("Index", "UserLogs", new { inPageName = "Menus" });

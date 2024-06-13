@@ -6,20 +6,20 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace ConvenienceMVC.Models.Entities.UserLogs
 {
     [Table("user_login")]
-    [PrimaryKey(nameof(MailAddress))]
+    [PrimaryKey(nameof(UserId))]
     public class UserLog
     {
-        [Column("mail_adress")]
-        [DisplayName("メールアドレス")]
-        [MaxLength(20)]
-        [Required]
-        public string MailAddress { get; set; }
-
         [Column("user_id")]
         [DisplayName("ユーザーID")]
         [MaxLength(20)]
         [Required]
         public string UserId { get; set; }
+
+        [Column("mail_adress")]
+        [DisplayName("メールアドレス")]
+        [MaxLength(20)]
+        [Required]
+        public string MailAddress { get; set; }
 
         [Column("user_name")]
         [DisplayName("ユーザー名")]

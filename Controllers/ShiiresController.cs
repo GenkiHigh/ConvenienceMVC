@@ -1,5 +1,6 @@
 ﻿using ConvenienceMVC.Models.Entities.Chumons;
 using ConvenienceMVC.Models.Entities.Shiires;
+using ConvenienceMVC.Models.Entities.UserLogs;
 using ConvenienceMVC.Models.Interfaces.Defines;
 using ConvenienceMVC.Models.Interfaces.Shiires;
 using ConvenienceMVC.Models.Services.Defines;
@@ -38,7 +39,8 @@ namespace ConvenienceMVC.Controllers
         public IActionResult Index()
         {
             // ログインしていない場合
-            if (!DefineService.IsUserSession())
+            UserLog queriedUserLog = DefineService.IsUserSession();
+            if (DefineService.IsUserSession() == null)
             {
                 // ログインページに移動
                 return RedirectToAction("Index", "UserLogs", new { inPageName = "Shiires" });
@@ -82,7 +84,8 @@ namespace ConvenienceMVC.Controllers
             };
 
             // ログインしていない場合
-            if (!DefineService.IsUserSession())
+            UserLog queriedUserLog = DefineService.IsUserSession();
+            if (DefineService.IsUserSession() == null)
             {
                 // ログインページに移動
                 return RedirectToAction("Index", "UserLogs", new { inPageName = "Shiires" });
@@ -131,18 +134,30 @@ namespace ConvenienceMVC.Controllers
             };
             ModelState.Clear();
 
+            ShiireViewModel getShiireViewModel = inShiireViewModel;
+
             // ログインしていない場合
-            if (!DefineService.IsUserSession())
+            UserLog queriedUserLog = DefineService.IsUserSession();
+            if (DefineService.IsUserSession() == null)
             {
                 // ログインページに移動
                 return RedirectToAction("Index", "UserLogs", new { inPageName = "Shiires" });
+            }
+            // ログインしている場合
+            else
+            {
+                // 使用中のユーザーIDを設定
+                foreach (var shiire in getShiireViewModel.ShiireJissekis)
+                {
+                    shiire.UserId = queriedUserLog.UserId;
+                }
             }
 
             // データ復元
             GetObjects();
 
             // 仕入実績、倉庫在庫更新
-            ShiireViewModel queriedShiireViewModel = await ShiireService.ShiireCommit(inShiireViewModel);
+            ShiireViewModel queriedShiireViewModel = await ShiireService.ShiireCommit(getShiireViewModel);
 
             // 仕入実績、倉庫在庫保存
             KeepObjects();

@@ -58,8 +58,7 @@ namespace ConvenienceMVC.Models.Entities.Shiires
         [Column("user_id")]
         [DisplayName("ユーザーID")]
         [MaxLength(20)]
-        [Required]
-        public string UserId { get; set; }
+        public string? UserId { get; set; }
 
         [Timestamp]
         public uint Version { get; set; }

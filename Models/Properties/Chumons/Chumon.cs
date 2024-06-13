@@ -138,14 +138,11 @@ namespace ConvenienceMVC.Models.Properties.Chumons
                 {
                     throw new Exception("既に別のデータが更新されています");
                 }
-
-                //var config = new MapperConfiguration(cfg => cfg.CreateMap<ChumonJisseki, ChumonJisseki>());
-                //var mapper = new Mapper(config);
-                //ChumonJisseki mapedChumonJisseki = mapper.Map<ChumonJisseki>(isChumonJisseki);
-
-                //mapedChumonJisseki.ChumonJissekiMeisais = _context.ChumonJissekiMeisai
-                //    .Where(mei => mei.ChumonId == mapedChumonJisseki.ChumonId)
-                //    .OrderBy(mei => mei.ShohinId).ToList();
+                // 注文者が前回と違う場合アベンド
+                if (isChumonJisseki.UserId != inChumonJisseki.UserId)
+                {
+                    throw new Exception("注文者が違います");
+                }
 
                 // 注文数残を更新
                 for (int meisaisCounter = 0; meisaisCounter < isChumonJisseki.ChumonJissekiMeisais.Count; meisaisCounter++)

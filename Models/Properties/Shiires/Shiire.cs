@@ -165,15 +165,10 @@ namespace ConvenienceMVC.Models.Properties.Shiires
                     throw new Exception("既に更新されています。");
                 }
 
-                //var config = new MapperConfiguration(cfg => cfg.CreateMap<ShiireJisseki, ShiireJisseki>());
-                //var mapper = new Mapper(config);
-                //IList<ShiireJisseki> mapedShiireJissekis = mapper.Map<IList<ShiireJisseki>>(isShiireJissekis);
-
-                //mapedShiireJissekis = _context.ShiireJisseki
-                //    .Where(sj => sj.ShiireSakiId == mapedShiireJissekis.First().ShiireSakiId &&
-                //    sj.ChumonId == mapedShiireJissekis.First().ChumonId)
-                //    .OrderBy(sj => sj.ShohinId)
-                //    .ToList();
+                if (isShiireJissekis[0].UserId != inShiireJissekis[0].UserId)
+                {
+                    throw new Exception("仕入者が違います。");
+                }
 
                 // 納入数を入力後のデータと同期
                 for (int shiiresCounter = 0; shiiresCounter < isShiireJissekis.Count; shiiresCounter++)
@@ -191,6 +186,18 @@ namespace ConvenienceMVC.Models.Properties.Shiires
             }
             else
             {
+                ChumonJisseki queriedChumonJisseki = _context.ChumonJisseki
+                    .Where(x => x.ChumonId == inShiireJissekis[0].ChumonId)
+                    .FirstOrDefault();
+                if (queriedChumonJisseki == null)
+                {
+                    throw new Exception("注文実績が存在しません。");
+                }
+                if (queriedChumonJisseki.UserId == inShiireJissekis[0].UserId)
+                {
+                    throw new Exception("注文者と仕入者が同じです。");
+                }
+
                 // 仕入実績リストを追加
                 for (int shiiresCounter = 0; shiiresCounter < inShiireJissekis.Count; shiiresCounter++)
                 {

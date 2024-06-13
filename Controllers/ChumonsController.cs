@@ -1,4 +1,5 @@
 ﻿using ConvenienceMVC.Models.Entities.Chumons;
+using ConvenienceMVC.Models.Entities.UserLogs;
 using ConvenienceMVC.Models.Interfaces.Chumons;
 using ConvenienceMVC.Models.Interfaces.Defines;
 using ConvenienceMVC.Models.Services.Chumons;
@@ -36,7 +37,8 @@ namespace ConvenienceMVC.Controllers
         public IActionResult Index()
         {
             // ログインしていない場合
-            if (!DefineService.IsUserSession())
+            UserLog queriedUserLog = DefineService.IsUserSession();
+            if (DefineService.IsUserSession() == null)
             {
                 // ログインページに移動
                 return RedirectToAction("Index", "UserLogs", new { inPageName = "Chumons" });
@@ -80,7 +82,8 @@ namespace ConvenienceMVC.Controllers
             }
 
             // ログインしていない場合
-            if (!DefineService.IsUserSession())
+            UserLog queriedUserLog = DefineService.IsUserSession();
+            if (DefineService.IsUserSession() == null)
             {
                 // ログインページに移動
                 return RedirectToAction("Index", "UserLogs", new { inPageName = "Chumons" });
@@ -130,24 +133,33 @@ namespace ConvenienceMVC.Controllers
             };
             ModelState.Clear();
 
+            ChumonViewModel getChumonViewModel = inChumonViewModel;
+
             // ログインしていない場合
-            if (!DefineService.IsUserSession())
+            UserLog queriedUserLog = DefineService.IsUserSession();
+            if (DefineService.IsUserSession() == null)
             {
                 // ログインページに移動
                 return RedirectToAction("Index", "UserLogs", new { inPageName = "Chumons" });
+            }
+            // ログインしている場合
+            else
+            {
+                // 使用中のユーザーIDを設定
+                getChumonViewModel.ChumonJisseki.UserId = queriedUserLog.UserId;
             }
 
             // 注文実績復元
             GetObject();
 
             // 注文実績更新
-            inChumonViewModel = await ChumonService.ChumonCommit(inChumonViewModel);
+            ChumonViewModel updateChumonViewModel = await ChumonService.ChumonCommit(getChumonViewModel);
 
             // 注文実績保存
             KeepObject();
 
             // 注文実績明細更新に移動
-            return View("Update", inChumonViewModel);
+            return View("Update", updateChumonViewModel);
         }
 
         // 注文実績検索用ViewModel設定

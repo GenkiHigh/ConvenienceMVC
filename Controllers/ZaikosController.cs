@@ -1,4 +1,5 @@
-﻿using ConvenienceMVC.Models.Interfaces.Defines;
+﻿using ConvenienceMVC.Models.Entities.UserLogs;
+using ConvenienceMVC.Models.Interfaces.Defines;
 using ConvenienceMVC.Models.Interfaces.Zaikos;
 using ConvenienceMVC.Models.Services.Defines;
 using ConvenienceMVC.Models.Services.Zaikos;
@@ -32,7 +33,8 @@ namespace ConvenienceMVC.Controllers
         public IActionResult Index()
         {
             // ログインしていない場合
-            if (!DefineService.IsUserSession())
+            UserLog queriedUserLog = DefineService.IsUserSession();
+            if (DefineService.IsUserSession() == null)
             {
                 // ログインページに移動
                 return RedirectToAction("Index", "UserLogs", new { inPageName = "Zaikos" });
@@ -92,7 +94,8 @@ namespace ConvenienceMVC.Controllers
             ModelState.Clear();
 
             // ログインしていない場合
-            if (!DefineService.IsUserSession())
+            UserLog queriedUserLog = DefineService.IsUserSession();
+            if (DefineService.IsUserSession() == null)
             {
                 // ログインページに移動
                 return RedirectToAction("Index", "UserLogs", new { inPageName = "Zaikos" });

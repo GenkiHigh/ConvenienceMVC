@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ConvenienceMVC.Migrations
 {
     [DbContext(typeof(ConvenienceMVCContext))]
-    [Migration("20240612042238_20240612001")]
-    partial class _20240612001
+    [Migration("20240613050402_20240613001")]
+    partial class _20240613001
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,7 +42,6 @@ namespace ConvenienceMVC.Migrations
                         .HasColumnName("chumon_date");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
                         .HasColumnName("user_id");
@@ -269,7 +268,6 @@ namespace ConvenienceMVC.Migrations
                         .HasColumnName("shohin_code");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
                         .HasColumnName("user_id");
@@ -337,14 +335,20 @@ namespace ConvenienceMVC.Migrations
 
             modelBuilder.Entity("ConvenienceMVC.Models.Entities.UserLogs.UserLog", b =>
                 {
-                    b.Property<string>("MailAddress")
+                    b.Property<string>("UserId")
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
-                        .HasColumnName("mail_adress");
+                        .HasColumnName("user_id");
 
                     b.Property<DateTime>("LastLoginDate")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("last_login_date");
+
+                    b.Property<string>("MailAddress")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("mail_adress");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -352,19 +356,13 @@ namespace ConvenienceMVC.Migrations
                         .HasColumnType("character varying(20)")
                         .HasColumnName("password");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("user_id");
-
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
                         .HasColumnName("user_name");
 
-                    b.HasKey("MailAddress");
+                    b.HasKey("UserId");
 
                     b.ToTable("user_login");
                 });
@@ -379,9 +377,7 @@ namespace ConvenienceMVC.Migrations
 
                     b.HasOne("ConvenienceMVC.Models.Entities.UserLogs.UserLog", "UserLog")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("ShiireSakiMaster");
 
@@ -430,9 +426,7 @@ namespace ConvenienceMVC.Migrations
                 {
                     b.HasOne("ConvenienceMVC.Models.Entities.UserLogs.UserLog", "UserLog")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.HasOne("ConvenienceMVC.Models.Entities.Chumons.ChumonJissekiMeisai", "ChumonJissekiMeisai")
                         .WithMany()

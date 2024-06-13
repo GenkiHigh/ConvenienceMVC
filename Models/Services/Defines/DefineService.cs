@@ -1,4 +1,7 @@
-﻿using ConvenienceMVC.Models.Interfaces.Defines;
+﻿using ConvenienceMVC.Models.Entities.Shiires;
+using ConvenienceMVC.Models.Entities.UserLogs;
+using ConvenienceMVC.Models.Interfaces.Defines;
+using Newtonsoft.Json;
 
 namespace ConvenienceMVC.Models.Services.Defines
 {
@@ -11,7 +14,7 @@ namespace ConvenienceMVC.Models.Services.Defines
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public bool IsUserSession()
+        public UserLog IsUserSession()
         {
             // セッション情報取得
             var userSession = _httpContextAccessor.HttpContext.Session.GetString("MyUserLog");
@@ -20,9 +23,13 @@ namespace ConvenienceMVC.Models.Services.Defines
             if (userSession == null)
             {
                 // ログインページに飛ぶ
-                return false;
+                return null;
             }
-            else return true;
+            else
+            {
+                UserLog getUserLog = JsonConvert.DeserializeObject<UserLog>(userSession);
+                return getUserLog;
+            }
         }
 
         public void DeleteUserSession()

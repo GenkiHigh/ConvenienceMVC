@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ConvenienceMVC.Migrations
 {
     /// <inheritdoc />
-    public partial class _20240612001 : Migration
+    public partial class _20240613001 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -47,15 +47,15 @@ namespace ConvenienceMVC.Migrations
                 name: "user_login",
                 columns: table => new
                 {
-                    mail_adress = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     user_id = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    mail_adress = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     user_name = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     password = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     last_login_date = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_user_login", x => x.mail_adress);
+                    table.PrimaryKey("PK_user_login", x => x.user_id);
                 });
 
             migrationBuilder.CreateTable(
@@ -94,7 +94,7 @@ namespace ConvenienceMVC.Migrations
                     chumon_code = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     shiire_saki_code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
                     chumon_date = table.Column<DateOnly>(type: "date", nullable: true),
-                    user_id = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    user_id = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
                     xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
                 },
                 constraints: table =>
@@ -110,8 +110,7 @@ namespace ConvenienceMVC.Migrations
                         name: "FK_chumon_jisseki_user_login_user_id",
                         column: x => x.user_id,
                         principalTable: "user_login",
-                        principalColumn: "mail_adress",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "user_id");
                 });
 
             migrationBuilder.CreateTable(
@@ -178,7 +177,7 @@ namespace ConvenienceMVC.Migrations
                     shiire_datetime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     shohin_code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
                     nonyu_su = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
-                    user_id = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    user_id = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
                     xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
                 },
                 constraints: table =>
@@ -194,8 +193,7 @@ namespace ConvenienceMVC.Migrations
                         name: "FK_shiire_jisseki_user_login_user_id",
                         column: x => x.user_id,
                         principalTable: "user_login",
-                        principalColumn: "mail_adress",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "user_id");
                 });
 
             migrationBuilder.CreateIndex(

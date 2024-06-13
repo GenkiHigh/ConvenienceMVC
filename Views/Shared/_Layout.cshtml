@@ -1,4 +1,10 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var sessionValue = HttpContextAccessor.HttpContext.Session.GetString("MyUserLog");
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -29,6 +35,12 @@
                         <li class="nav-item">
                             <a class="nav-link text-white" asp-area="" asp-controller="Zaikos" asp-action="Search">在庫検索</a>
                         </li>
+                        @if (!string.IsNullOrEmpty(sessionValue))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-white">@sessionValue</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>

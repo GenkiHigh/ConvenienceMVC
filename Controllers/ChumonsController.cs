@@ -1,6 +1,8 @@
 ﻿using ConvenienceMVC.Models.Entities.Chumons;
 using ConvenienceMVC.Models.Interfaces.Chumons;
+using ConvenienceMVC.Models.Interfaces.Defines;
 using ConvenienceMVC.Models.Services.Chumons;
+using ConvenienceMVC.Models.Services.Defines;
 using ConvenienceMVC.Models.Views.Chumons;
 using ConvenienceMVC_Context;
 using Microsoft.AspNetCore.Mvc;
@@ -14,21 +16,32 @@ namespace ConvenienceMVC.Controllers
     {
         // DBコンテキスト
         private readonly ConvenienceMVCContext _context;
-        // 注文サービス
-        private IChumonService ChumonService;
+        // 基底サービスインターフェース
+        private readonly IDefineService DefineService;
+        // 注文サービスインターフェース
+        private readonly IChumonService ChumonService;
 
         // コンストラクタ
-        public ChumonsController(ConvenienceMVCContext context)
+        public ChumonsController(ConvenienceMVCContext context, DefineService defineService)
         {
             // DBコンテキスト設定
             _context = context;
             // 注文サービスインスタンス生成
             ChumonService = new ChumonService(_context);
+            // 基底サービス設定
+            DefineService = defineService;
         }
 
         // Index(初期設定)
         public IActionResult Index()
         {
+            // ログインしていない場合
+            if (!DefineService.IsUserSession())
+            {
+                // ログインページに移動
+                return RedirectToAction("Index", "UserLogs", new { inPageName = "Chumons" });
+            }
+
             return RedirectToAction("Search");
         }
         // 総合メニュー移動
@@ -64,6 +77,13 @@ namespace ConvenienceMVC.Controllers
             if (!ModelState.IsValid)
             {
                 throw new InvalidOperationException("Postデータエラー");
+            }
+
+            // ログインしていない場合
+            if (!DefineService.IsUserSession())
+            {
+                // ログインページに移動
+                return RedirectToAction("Index", "UserLogs", new { inPageName = "Chumons" });
             }
 
             // 注文実績検索(既に注文されたかを問い合わせる)
@@ -109,6 +129,13 @@ namespace ConvenienceMVC.Controllers
                 throw new Exception("Postデータエラー");
             };
             ModelState.Clear();
+
+            // ログインしていない場合
+            if (!DefineService.IsUserSession())
+            {
+                // ログインページに移動
+                return RedirectToAction("Index", "UserLogs", new { inPageName = "Chumons" });
+            }
 
             // 注文実績復元
             GetObject();

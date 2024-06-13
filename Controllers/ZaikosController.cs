@@ -1,4 +1,6 @@
-﻿using ConvenienceMVC.Models.Interfaces.Zaikos;
+﻿using ConvenienceMVC.Models.Interfaces.Defines;
+using ConvenienceMVC.Models.Interfaces.Zaikos;
+using ConvenienceMVC.Models.Services.Defines;
 using ConvenienceMVC.Models.Services.Zaikos;
 using ConvenienceMVC.Models.Views.Zaikos;
 using ConvenienceMVC_Context;
@@ -11,18 +13,31 @@ namespace ConvenienceMVC.Controllers
     {
         // DBコンテキスト
         private readonly ConvenienceMVCContext _context;
-        private IZaikoService zaikoService;
+        // 基底サービスインターフェース
+        private readonly IDefineService DefineService;
+        // 在庫サービスインターフェース
+        private readonly IZaikoService zaikoService;
 
         // コンストラクタ
-        public ZaikosController(ConvenienceMVCContext context)
+        public ZaikosController(ConvenienceMVCContext context, DefineService defineService)
         {
             // DBコンテキストを設定
             _context = context;
+            // 在庫サービスインスタンス生成
             zaikoService = new ZaikoService(_context);
+            // 基底サービス設定
+            DefineService = defineService;
         }
 
         public IActionResult Index()
         {
+            // ログインしていない場合
+            if (!DefineService.IsUserSession())
+            {
+                // ログインページに移動
+                return RedirectToAction("Index", "UserLogs", new { inPageName = "Zaikos" });
+            }
+
             return RedirectToAction("Search");
         }
 
@@ -75,6 +90,13 @@ namespace ConvenienceMVC.Controllers
                 throw new Exception("Postデータエラー");
             }
             ModelState.Clear();
+
+            // ログインしていない場合
+            if (!DefineService.IsUserSession())
+            {
+                // ログインページに移動
+                return RedirectToAction("Index", "UserLogs", new { inPageName = "Zaikos" });
+            }
 
             inZaikoViewModel = zaikoService.SetDisplaySokoZaiko(inZaikoViewModel);
 

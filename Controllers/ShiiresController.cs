@@ -1,6 +1,8 @@
 ﻿using ConvenienceMVC.Models.Entities.Chumons;
 using ConvenienceMVC.Models.Entities.Shiires;
+using ConvenienceMVC.Models.Interfaces.Defines;
 using ConvenienceMVC.Models.Interfaces.Shiires;
+using ConvenienceMVC.Models.Services.Defines;
 using ConvenienceMVC.Models.Services.Shiires;
 using ConvenienceMVC.Models.Views.Shiires;
 using ConvenienceMVC_Context;
@@ -16,22 +18,32 @@ namespace ConvenienceMVC.Controllers
     {
         // DBコンテキスト
         private readonly ConvenienceMVCContext _context;
-
+        // 基底サービスインターフェース
+        private readonly IDefineService DefineService;
         // 仕入サービスインターフェース
-        private IShiireService ShiireService;
+        private readonly IShiireService ShiireService;
 
         // コンストラクタ
-        public ShiiresController(ConvenienceMVCContext context)
+        public ShiiresController(ConvenienceMVCContext context, DefineService defineService)
         {
             // DBコンテキストを設定
             _context = context;
             // 仕入サービスのインスタンス生成
             ShiireService = new ShiireService(_context);
+            // 基底サービス設定
+            DefineService = defineService;
         }
 
         // Index(初期設定)
         public IActionResult Index()
         {
+            // ログインしていない場合
+            if (!DefineService.IsUserSession())
+            {
+                // ログインページに移動
+                return RedirectToAction("Index", "UserLogs", new { inPageName = "Shiires" });
+            }
+
             return RedirectToAction("Search");
         }
         // Menu(初期設定)
@@ -68,6 +80,13 @@ namespace ConvenienceMVC.Controllers
             {
                 throw new Exception("Postデータエラー");
             };
+
+            // ログインしていない場合
+            if (!DefineService.IsUserSession())
+            {
+                // ログインページに移動
+                return RedirectToAction("Index", "UserLogs", new { inPageName = "Shiires" });
+            }
 
             // 仕入実績、倉庫在庫設定
             ShiireViewModel queriedShiireViewModel = ShiireService.ShiireSetting(inShiireKeyViewModel.ChumonId);
@@ -111,6 +130,13 @@ namespace ConvenienceMVC.Controllers
                 throw new Exception("Postデータエラー");
             };
             ModelState.Clear();
+
+            // ログインしていない場合
+            if (!DefineService.IsUserSession())
+            {
+                // ログインページに移動
+                return RedirectToAction("Index", "UserLogs", new { inPageName = "Shiires" });
+            }
 
             // データ復元
             GetObjects();

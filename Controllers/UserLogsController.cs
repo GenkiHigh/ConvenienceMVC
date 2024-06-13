@@ -1,6 +1,6 @@
 ﻿using ConvenienceMVC.Models.Entities.UserLogs;
 using ConvenienceMVC.Models.Interfaces.UserLogs;
-using ConvenienceMVC.Models.Properties.Login;
+using ConvenienceMVC.Models.Services.UserLogs;
 using ConvenienceMVC.Models.Views.UserLogs;
 using ConvenienceMVC_Context;
 using Microsoft.AspNetCore.Mvc;
@@ -12,24 +12,31 @@ namespace ConvenienceMVC.Controllers
     {
         // DBコンテキスト
         private readonly ConvenienceMVCContext _context;
+        // ユーザーサービスインターフェース
+        private readonly IUserService UserService;
 
-        private IUser User;
-
+        // コンストラクタ
         public UserLogsController(ConvenienceMVCContext context)
         {
+            // DBコンテキスト設定
             _context = context;
-            User = new User(_context);
+            // ユーザーサービスインターフェース初期化
+            UserService = new UserService(_context);
         }
 
         // Index(初期設定)
         public IActionResult Index(string inPageName)
         {
+            // 直前のページ名を保存
             KeepPageNamet(inPageName);
+
+            // ログインページに移動
             return RedirectToAction("Login");
         }
         // ログイン
         public IActionResult Login()
         {
+            // ログインページ表示
             return View();
         }
         [HttpPost]
@@ -41,36 +48,29 @@ namespace ConvenienceMVC.Controllers
             {
                 throw new Exception("Postデータエラー");
             };
+            // フォーム入力値リセット
             ModelState.Clear();
 
-            // 入力されたメアドでDB検索
-            // 見つからない場合再入力
-            // パスワードが違う場合再入力
-            UserLog queriedUserLog = User.QueryUserLog(inUserLoginViewModel.MailAddress);
-
-            // 見つからない場合
+            // 機能１：入力された情報を基にログイン実行
+            UserLog queriedUserLog = UserService.UserLogin(inUserLoginViewModel);
+            // 機能１－１：対象のアカウントが見つからかった、又はパスワードが違った場合
             if (queriedUserLog == null)
             {
+                // 再入力
                 return View();
             }
-            else
-            {
-                // パスワードが違う場合
-                if (queriedUserLog.Password != inUserLoginViewModel.Password)
-                {
-                    return View();
-                }
-            }
 
-            // セッション追加
+            // セッションにユーザー情報を追加
             AddSession(queriedUserLog);
 
+            // ログインページに移動する前のページに移動
             return RedirectToAction("Index", GetPageName());
         }
 
         // アカウント作成
         public IActionResult Create()
         {
+            // アカウント作成画面に移動
             return View();
         }
         [HttpPost]
@@ -82,55 +82,22 @@ namespace ConvenienceMVC.Controllers
             {
                 throw new Exception("Postデータエラー");
             };
+            // フォーム入力値リセット
             ModelState.Clear();
 
-            // 入力されたメールアドレスを基にDB検索
-            // そのメールアドレスで既に登録されている場合再入力
-            // 入力したパスワード2種が違っていた場合再入力
-            UserLog queriedUserLog = User.QueryUserLog(inUserCreateViewModel.MailAddress);
-
-            // 見つかった場合
-            if (queriedUserLog != null)
+            // 機能１：アカウント新規作成
+            UserLog newUserLog = await UserService.CreateAcount(inUserCreateViewModel);
+            // 機能１－１：既に入力されたメールアドレスが使われている、又は入力されたパスワード2種が違った場合
+            if (newUserLog == null)
             {
+                // 再入力
                 return View();
             }
-            else
-            {
-                // パスワードが違った場合
-                if (inUserCreateViewModel.Password != inUserCreateViewModel.RePassword)
-                {
-                    return View();
-                }
-            }
 
-            // ユーザーIDを設定
-            // 一番大きい数字に+1して渡す
-            string userId = "";
-            if (_context.UserLog.Count() == 0)
-            {
-                int firstNumber = 1;
-                userId = firstNumber.ToString("D12");
-            }
-            else
-            {
-                userId = _context.UserLog.OrderBy(log => log.UserId).Select(log => log.UserId).Last();
-                userId = (int.Parse(userId) + 1).ToString("D12");
-            }
-
-            // アカウント作成、DB追加
-            UserLog newUserLog = new UserLog()
-            {
-                MailAddress = inUserCreateViewModel.MailAddress,
-                UserId = userId,
-                UserName = inUserCreateViewModel.UserName,
-                Password = inUserCreateViewModel.Password,
-                LastLoginDate = DateTime.Now,
-            };
-            _context.UserLog.Add(newUserLog);
-            await _context.SaveChangesAsync();
-
+            // セッションにユーザー情報を追加
             AddSession(newUserLog);
 
+            // アカウント作成ページに移動する前のページに移動
             return RedirectToAction("Index", GetPageName());
         }
 

@@ -1,4 +1,5 @@
-﻿using ConvenienceMVC_Context;
+﻿using ConvenienceMVC.Models.Services.Defines;
+using ConvenienceMVC_Context;
 using Microsoft.EntityFrameworkCore;
 using NLog;
 using NLog.Web;
@@ -22,10 +23,12 @@ try
     builder.Services.AddDistributedMemoryCache();
     builder.Services.AddSession(options =>
     {
-        options.IdleTimeout = TimeSpan.FromMinutes(30); // セッションの有効期限を30分に設定
+        options.IdleTimeout = TimeSpan.FromDays(1); // セッションの有効期限を1日に設定
         options.Cookie.HttpOnly = true; // クッキーをHTTP通信に限定
         options.Cookie.IsEssential = true; // GDPR対応
     });
+    builder.Services.AddHttpContextAccessor(); // HttpContextAccessorを追加
+    builder.Services.AddScoped<DefineService>(); // 必要に応じてサービスを登録
 
     // NLog: Setup NLog for Dependency injection
     builder.Logging.ClearProviders();

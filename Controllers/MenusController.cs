@@ -1,8 +1,8 @@
 ﻿using ConvenienceMVC.Models.Entities.Chumons;
-using ConvenienceMVC.Models.Entities.UserLogs;
+using ConvenienceMVC.Models.Interfaces.Defines;
+using ConvenienceMVC.Models.Services.Defines;
 using ConvenienceMVC_Context;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace ConvenienceMVC.Controllers
 {
@@ -10,17 +10,24 @@ namespace ConvenienceMVC.Controllers
     {
         // DBコンテキスト
         private readonly ConvenienceMVCContext _context;
+        // 基底サービス
+        private readonly IDefineService DefineService;
 
-        public MenusController(ConvenienceMVCContext context)
+        // コンストラクタ
+        public MenusController(ConvenienceMVCContext context, DefineService defineService)
         {
+            // DBコンテキスト設定
             _context = context;
+            // 基底サービス設定
+            DefineService = defineService;
         }
 
         public IActionResult Index()
         {
-            // ログイン確認
-            if (!CheckUserSession())
+            // ログインしていない場合
+            if (!DefineService.IsUserSession())
             {
+                // ログインページに移動
                 return RedirectToAction("Index", "UserLogs", new { inPageName = "Menus" });
             }
 
@@ -29,20 +36,21 @@ namespace ConvenienceMVC.Controllers
 
         public IActionResult Chumon()
         {
-            return RedirectToAction("Search", "Chumons");
+            return RedirectToAction("Index", "Chumons");
         }
 
         public IActionResult Shiire()
         {
-            return RedirectToAction("Search", "Shiires");
+            return RedirectToAction("Index", "Shiires");
         }
 
         public IActionResult Zaiko()
         {
-            return RedirectToAction("Search", "Zaikos");
+            return RedirectToAction("Index", "Zaikos");
         }
 
         // テスト用
+        // 仕入マスタを手っ取り早く設定する
         public IActionResult SetShiireMastar()
         {
             var shohinList = _context.ShohinMaster.OrderBy(sho => sho.ShohinId).ToList();
@@ -99,35 +107,6 @@ namespace ConvenienceMVC.Controllers
             }
 
             return unit;
-        }
-
-        private bool CheckUserSession()
-        {
-            // セッション情報取得
-            var userSession = HttpContext.Session.GetString("MyUserLog");
-
-            // セッション情報が無い場合
-            if (userSession == null)
-            {
-                // ログインページに飛ぶ
-                return false;
-
-                UserLog userLogin = new UserLog()
-                {
-                    UserId = "000000000001",
-                    UserName = "テスト太郎",
-                    MailAddress = "test@gmail.com",
-                    Password = "aaaaaaaa",
-                    LastLoginDate = DateTime.Now,
-                };
-
-                var settings = new JsonSerializerSettings
-                {
-                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                };
-                HttpContext.Session.SetString("MyInformation", JsonConvert.SerializeObject(userLogin, settings));
-            }
-            else return true;
         }
     }
 }

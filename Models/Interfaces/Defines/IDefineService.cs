@@ -3,5 +3,7 @@
     public interface IDefineService
     {
         public bool IsUserSession();
+
+        public void DeleteUserSession();
     }
 }

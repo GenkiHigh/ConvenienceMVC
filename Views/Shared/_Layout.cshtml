@@ -1,4 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Http
+@using ConvenienceMVC.Models.Entities.UserLogs
+@using Newtonsoft.Json
 @inject IHttpContextAccessor HttpContextAccessor
 @{
     var sessionValue = HttpContextAccessor.HttpContext.Session.GetString("MyUserLog");
@@ -27,18 +29,26 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Chumons" asp-action="Search">商品注文</a>
+                            <a class="nav-link text-white" asp-area="" asp-controller="Chumons" asp-action="Index">商品注文</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Shiires" asp-action="Search">仕入作成</a>
+                            <a class="nav-link text-white" asp-area="" asp-controller="Shiires" asp-action="Index">仕入作成</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Zaikos" asp-action="Search">在庫検索</a>
+                            <a class="nav-link text-white" asp-area="" asp-controller="Zaikos" asp-action="Index">在庫検索</a>
                         </li>
                         @if (!string.IsNullOrEmpty(sessionValue))
                         {
+                            UserLog getUserLog = JsonConvert.DeserializeObject<UserLog>(sessionValue);
+
+                            <li class="nav-item ms-auto">
+                                <label asp-for="@getUserLog.UserName" class="control-label nav-link text-white"></label>
+                            </li>
                             <li class="nav-item">
-                                <a class="nav-link text-white">@sessionValue</a>
+                                <a class="nav-link text-white">：@getUserLog.UserName</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-area="" asp-controller="UserLogs" asp-action="Logout">ログアウト</a>
                             </li>
                         }
                     </ul>

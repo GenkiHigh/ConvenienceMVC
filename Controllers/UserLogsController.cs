@@ -1,5 +1,7 @@
 ﻿using ConvenienceMVC.Models.Entities.UserLogs;
+using ConvenienceMVC.Models.Interfaces.Defines;
 using ConvenienceMVC.Models.Interfaces.UserLogs;
+using ConvenienceMVC.Models.Services.Defines;
 using ConvenienceMVC.Models.Services.UserLogs;
 using ConvenienceMVC.Models.Views.UserLogs;
 using ConvenienceMVC_Context;
@@ -12,16 +14,20 @@ namespace ConvenienceMVC.Controllers
     {
         // DBコンテキスト
         private readonly ConvenienceMVCContext _context;
+        // 基底サービスインターフェース
+        private readonly IDefineService DefineService;
         // ユーザーサービスインターフェース
         private readonly IUserService UserService;
 
         // コンストラクタ
-        public UserLogsController(ConvenienceMVCContext context)
+        public UserLogsController(ConvenienceMVCContext context, DefineService defineService)
         {
             // DBコンテキスト設定
             _context = context;
             // ユーザーサービスインターフェース初期化
             UserService = new UserService(_context);
+            // 基底サービスインターフェース設定
+            DefineService = defineService;
         }
 
         // Index(初期設定)
@@ -99,6 +105,15 @@ namespace ConvenienceMVC.Controllers
 
             // アカウント作成ページに移動する前のページに移動
             return RedirectToAction("Index", GetPageName());
+        }
+
+        // ログアウト
+        public IActionResult Logout()
+        {
+            // ユーザーセッション削除
+            DefineService.DeleteUserSession();
+
+            return RedirectToAction("Index", "Menus");
         }
 
         private void AddSession(UserLog inUserLog)

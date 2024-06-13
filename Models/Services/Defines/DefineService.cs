@@ -24,5 +24,10 @@ namespace ConvenienceMVC.Models.Services.Defines
             }
             else return true;
         }
+
+        public void DeleteUserSession()
+        {
+            _httpContextAccessor.HttpContext.Session.Remove("MyUserLog");
+        }
     }
 }

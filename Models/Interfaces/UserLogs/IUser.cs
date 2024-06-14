@@ -2,10 +2,12 @@
 
 namespace ConvenienceMVC.Models.Interfaces.UserLogs
 {
+    // ユーザーインターフェース
     public interface IUser
     {
+        // ユーザー情報
         public UserLog UserLog { get; set; }
 
-        public UserLog QueryUserLog(string mail);
+        public UserLog UserLogQuery(string mail);
     }
 }

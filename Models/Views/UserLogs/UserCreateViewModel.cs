@@ -1,5 +1,6 @@
 ﻿namespace ConvenienceMVC.Models.Views.UserLogs
 {
+    // アカウント作成用ViewModel
     public class UserCreateViewModel
     {
         public string UserName { get; set; }

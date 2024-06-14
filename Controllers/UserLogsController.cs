@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 
 namespace ConvenienceMVC.Controllers
 {
+    // ユーザーコントローラー
     public class UserLogsController : Controller
     {
         // DBコンテキスト
@@ -39,71 +40,89 @@ namespace ConvenienceMVC.Controllers
             // ログインページに移動
             return RedirectToAction("Login");
         }
-        // ログイン
+        // ログイン(初期設定)
         public IActionResult Login()
         {
             // ログインページ表示
             return View();
         }
+        // ログイン(ログイン実行)
+        // inUserLoginViewModel：ログイン画面で入力されたデータを格納したログイン用ViewModel
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(UserLoginViewModel inUserLoginViewModel)
         {
-            // 入力不具合チェック
+            // 処理１：入力に不具合があるかをチェックする
+            // 処理２：ログインを実行する
+            // 戻り値：ログイン画面に移動する前の画面への移動、再入力
+
+            // 処理１：入力に不具合があるかをチェックする
             if (!ModelState.IsValid)
             {
                 throw new Exception("Postデータエラー");
             };
-            // フォーム入力値リセット
+            // 処理１－１：フォーム入力値をリセットする
             ModelState.Clear();
 
-            // 機能１：入力された情報を基にログイン実行
+            // 処理２：ログイン実行
             UserLog queriedUserLog = UserService.UserLogin(inUserLoginViewModel);
-            // 機能１－１：対象のアカウントが見つからかった、又はパスワードが違った場合
+            // 処理２－１：対象のアカウントが見つからかった、又はパスワードが違った場合
             if (queriedUserLog == null)
             {
                 // 再入力
                 return View();
             }
+            // 処理２－２：対象のアカウントが見つかった場合
+            else
+            {
+                // 処理２－２ー１：セッションにユーザー情報を追加する
+                AddSession(queriedUserLog);
+            }
 
-            // セッションにユーザー情報を追加
-            AddSession(queriedUserLog);
-
-            // ログインページに移動する前のページに移動
+            // ログイン画面に移動する前の画面に移動する
             return RedirectToAction("Index", GetPageName());
         }
 
-        // アカウント作成
+        // アカウント作成(初期設定)
         public IActionResult Create()
         {
             // アカウント作成画面に移動
             return View();
         }
+        // アカウント作成(作成実行)
+        // inUserCreateViewModel：作成画面で入力されたデータを格納した作成用ViewModel
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(UserCreateViewModel inUserCreateViewModel)
         {
-            // 入力不具合チェック
+            // 処理１：入力に不具合があるかをチェックする
+            // 処理２：アカウントを作成する
+            // 戻り値：アカウント作成画面に移動する前の画面への移動、再入力
+
+            // 処理１：入力に不具合があるかをチェックする
             if (!ModelState.IsValid)
             {
                 throw new Exception("Postデータエラー");
             };
-            // フォーム入力値リセット
+            // 処理１－１：フォーム入力値をリセットする
             ModelState.Clear();
 
-            // 機能１：アカウント新規作成
+            // 処理２：新規アカウントを作成する
             UserLog newUserLog = await UserService.CreateAcount(inUserCreateViewModel);
-            // 機能１－１：既に入力されたメールアドレスが使われている、又は入力されたパスワード2種が違った場合
+            // 処理２－１：既に入力されたメールアドレスが使われている、又は入力されたパスワード2種が違った場合
             if (newUserLog == null)
             {
                 // 再入力
                 return View();
             }
+            // 処理２－２：メールアドレスが使われておらず、入力されたパスワード2種が合っていた場合
+            else
+            {
+                // 処理２－２－１：セッションにユーザー情報を追加する
+                AddSession(newUserLog);
+            }
 
-            // セッションにユーザー情報を追加
-            AddSession(newUserLog);
-
-            // アカウント作成ページに移動する前のページに移動
+            // アカウント作成画面に移動する前の画面に移動
             return RedirectToAction("Index", GetPageName());
         }
 
@@ -116,6 +135,8 @@ namespace ConvenienceMVC.Controllers
             return RedirectToAction("Index", "Menus");
         }
 
+        // セッション追加
+        // inUserLog：追加したいユーザー情報
         private void AddSession(UserLog inUserLog)
         {
             // セッション追加
@@ -127,6 +148,7 @@ namespace ConvenienceMVC.Controllers
         }
 
         // ページ名保存
+        // inPageName：保存したいページ名(ログイン、アカウント作成ページから戻るページ)
         private void KeepPageNamet(string inPageName)
         {
             TempData["PageName"] = inPageName;
@@ -134,6 +156,8 @@ namespace ConvenienceMVC.Controllers
         // ページ名復元
         private string GetPageName()
         {
+            // 戻り値：復元したページ名
+
             string PageName = TempData["PageName"] as string;
             return PageName;
         }

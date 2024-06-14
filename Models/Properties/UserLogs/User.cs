@@ -18,7 +18,7 @@ namespace ConvenienceMVC.Models.Properties.Login
         }
 
         // ユーザー情報検索
-        public UserLog QueryUserLog(string inMail)
+        public UserLog UserLogQuery(string inMail)
         {
             UserLog queriedUserLog = _context.UserLog
                 .Where(log => log.MailAddress == inMail)

@@ -9,8 +9,8 @@ namespace ConvenienceMVC.Models.Interfaces.Chumons
         public IChumon Chumon { get; set; }
 
         // 注文実績設定
-        public Task<ChumonViewModel> ChumonSetting(string inShiireSakiId, DateOnly inChumonDate);
+        public Task<ChumonUpdateViewModel> ChumonSetting(string inShiireSakiId, DateOnly inChumonDate);
         // 注文実績更新
-        public Task<ChumonViewModel> ChumonCommit(ChumonViewModel inChumonViewModel);
+        public Task<ChumonUpdateViewModel> ChumonCommit(ChumonUpdateViewModel inChumonViewModel);
     }
 }

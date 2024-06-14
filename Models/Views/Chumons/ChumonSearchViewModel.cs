@@ -6,7 +6,7 @@ using System.ComponentModel;
 namespace ConvenienceMVC.Models.Views.Chumons
 {
     // 注文実績検索用ViewModel
-    public class ChumonKeyViewModel
+    public class ChumonSearchViewModel
     {
         [Column("shiire_saki_code")]
         [DisplayName("仕入先コード")]

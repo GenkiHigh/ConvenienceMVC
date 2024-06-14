@@ -36,152 +36,157 @@ namespace ConvenienceMVC.Controllers
         // Index(初期設定)
         public IActionResult Index()
         {
-            // ログインしていない場合
+            // 処理１：ログイン状況を確認する
+            // 戻り値：検索画面、又はログイン画面への移動
+
+            // 処理１：ログイン状況を確認する
             UserLog queriedUserLog = DefineService.IsUserSession();
-            if (DefineService.IsUserSession() == null)
+            // 処理１－１：ログインしていない場合
+            if (queriedUserLog == null)
             {
-                // ログインページに移動
+                // ログイン画面に移動
                 return RedirectToAction("Index", "UserLogs", new { inPageName = "Chumons" });
             }
 
+            // 検索画面に移動
             return RedirectToAction("Search");
         }
         // 総合メニュー移動
         public IActionResult Menu()
         {
-            // メニューコントローラーのIndexに移動する
+            // メニュー画面に移動する
             return RedirectToAction("Index", "Menus");
         }
 
         // 注文実績検索(初期設定)
         public IActionResult Search()
         {
-            // 注文実績検索用ViewModelを設定、Viewに渡す
-            var inChumonKeyViewModel = SetChumonKeyViewModel();
-            return View(inChumonKeyViewModel);
+            // 処理１：注文実績検索用ViewModelを設定する
+            // 戻り値：注文実績検索用ViewModelを渡しながら検索画面への移動
+
+            // 処理１：注文実績検索用ViewModelを設定する
+            ChumonSearchViewModel getChumonSearchViewModel = SetChumonSearchViewModel();
+
+            // 設定した注文実績検索用ViewModelを渡しながら検索画面に移動する
+            return View(getChumonSearchViewModel);
         }
-        /*
-         * 注文実績検索(検索実行)
-         * inChumonKeyViewModel：選択された仕入先コード、注文日が格納された注文実績検索用ViewModel
-         */
+        // 注文実績検索(検索実行)
+        // inChumonSerachViewModel：検索画面で入力されたデータを格納した注文実績検索用ViewModel
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Search(ChumonKeyViewModel inChumonKeyViewModel)
+        public async Task<IActionResult> Search(ChumonSearchViewModel inChumonSearchViewModell)
         {
-            /*
-             * 不具合なく入力されたかを判定
-             * 選択された仕入先コード、注文日を基に注文実績を検索し検索結果を受け取る
-             * 受け取った注文実績を保存
-             * 注文実績を更新画面に渡しながら移動
-             */
+            // 処理１：入力に不具合があるかをチェックする
+            // 処理２：ログイン状況を確認する
+            // 処理３：注文実績を検索する
+            // 処理４：検索して取得した、又は新規作成した注文実績を保存する
+            // 戻り値：注文実績を検索した時に作成した注文実績更新用ViewModelを渡しながら更新画面への移動
 
-            // 入力不具合チェック
+            // 処理１：入力に不具合があるかをチェックする
             if (!ModelState.IsValid)
             {
-                throw new InvalidOperationException("Postデータエラー");
+                throw new Exception("Postデータエラー");
             }
 
-            // ログインしていない場合
+            // 処理２：ログイン状況を確認する
             UserLog queriedUserLog = DefineService.IsUserSession();
-            if (DefineService.IsUserSession() == null)
+            // 処理２－１：ログインしていない場合
+            if (queriedUserLog == null)
             {
-                // ログインページに移動
+                // ログイン画面に移動
                 return RedirectToAction("Index", "UserLogs", new { inPageName = "Chumons" });
             }
 
-            // 注文実績検索(既に注文されたかを問い合わせる)
-            ChumonViewModel queriedChumonViewModel = await ChumonService.ChumonSetting(
-                inChumonKeyViewModel.ShiireSakiId, DateOnly.FromDateTime(inChumonKeyViewModel.ChumonDate));
+            // 処理３：注文実績を検索する
+            ChumonUpdateViewModel queriedChumonUpdateViewModel = await ChumonService.ChumonSetting(
+                inChumonSearchViewModell.ShiireSakiId, DateOnly.FromDateTime(inChumonSearchViewModell.ChumonDate));
 
-            // 注文実績保存
+            // 処理４：検索して取得した、又は新規作成した注文実績を保存する
             KeepObject();
 
-            // 注文実績明細更新に移動
-            return View("Update", queriedChumonViewModel);
+            // 注文実績更新用ViewModelを渡しながら更新画面に移動する
+            return View("Update", queriedChumonUpdateViewModel);
         }
 
-        /*
-         * 注文実績明細更新(初期画面)
-         * inChumonViewModel：検索結果又は新規作成した注文実績を格納した注文実績更新用ViewModel
-         */
-        public IActionResult Update(ChumonViewModel inChumonViewModel)
+        // 注文実績更新(初期設定)
+        // inChumonUpdateViewModel：検索画面で検索して取得した、又は新規作成した注文実績を格納した注文実績更新用ViewModel
+        public IActionResult Update(ChumonUpdateViewModel inChumonUpdateViewModel)
         {
-            // Viewに渡す
-            return View(inChumonViewModel);
+            // 注文実績更新用ViewModelを渡しながら更新画面に移動する
+            return View(inChumonUpdateViewModel);
         }
-        /*
-         * 注文実績明細更新(更新実行)
-         * id；オーバーロード用引数
-         * inChumonViewModel：入力した注文数を格納した注文実績更新用ViewModel
-         */
+        // 注文実績更新(更新実行)
+        // id：オーバーロード用
+        // inChumonUpdateViewModel：更新画面で入力されたデータを格納した注文実績更新用ViewModel
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Update(int id, ChumonViewModel inChumonViewModel)
+        public async Task<IActionResult> Update(int id, ChumonUpdateViewModel inChumonUpdateViewModel)
         {
-            /*
-             * 不具合なく入力されたかを判定
-             * 保存したデータを復元
-             * 注文実績を更新し、更新後のデータを受け取る
-             * 更新後のデータを保存
-             * 注文実績を更新画面に渡しながら移動
-             */
+            // 処理１：入力に不具合があるかをチェックする
+            // 処理２：ログイン状況を確認する
+            // 処理３：注文実績を復元する
+            // 処理４：注文実績を更新する
+            // 処理５：変更後の注文実績を保存する
+            // 戻り値：変更後の注文実績更新用ViewModelを渡しながら更新画面への移動
 
-            // 入力不具合チェック
+            // 処理１：入力に不具合があるかをチェックする
             if (!ModelState.IsValid)
             {
                 throw new Exception("Postデータエラー");
             };
+            // 処理１－１：入力フォームを初期化する
             ModelState.Clear();
 
-            ChumonViewModel getChumonViewModel = inChumonViewModel;
-
-            // ログインしていない場合
+            // 処理２：ログイン状況を確認する
+            ChumonUpdateViewModel getChumonViewModel = inChumonUpdateViewModel;
             UserLog queriedUserLog = DefineService.IsUserSession();
+            // 処理２－１：ログインしていない場合
             if (DefineService.IsUserSession() == null)
             {
-                // ログインページに移動
+                // ログイン画面に移動
                 return RedirectToAction("Index", "UserLogs", new { inPageName = "Chumons" });
             }
-            // ログインしている場合
+            // 処理２－２：ログインしている場合
             else
             {
                 // 使用中のユーザーIDを設定
                 getChumonViewModel.ChumonJisseki.UserId = queriedUserLog.UserId;
             }
 
-            // 注文実績復元
+            // 処理３：注文実績を復元する
             GetObject();
 
-            // 注文実績更新
-            ChumonViewModel updateChumonViewModel = await ChumonService.ChumonCommit(getChumonViewModel);
+            // 処理４：注文実績を更新する
+            ChumonUpdateViewModel updateChumonViewModel = await ChumonService.ChumonCommit(getChumonViewModel);
 
-            // 注文実績保存
+            // 処理５：更新、又は追加後の注文実績を保存する
             KeepObject();
 
-            // 注文実績明細更新に移動
+            // 更新、又は追加後の注文実績を渡しながら更新画面に移動する
             return View("Update", updateChumonViewModel);
         }
 
         // 注文実績検索用ViewModel設定
-        private ChumonKeyViewModel SetChumonKeyViewModel()
+        private ChumonSearchViewModel SetChumonSearchViewModel()
         {
-            /*
-             * 仕入先コードをまとめたリストを作成
-             * 仕入先コードリストを格納したViewModelを作成し戻り値に渡す
-             */
+            // 処理１：仕入先コードリストを設定する
+            // 戻り値：仕入先コードリストを格納した注文実績検索用ViewModelを作成し渡す
 
-            // 仕入先コードリストを設定
-            var list = _context.ShiireSakiMaster.OrderBy(s => s.ShiireSakiId).Select(s => new SelectListItem
-            {
-                Value = s.ShiireSakiId,
-                Text = s.ShiireSakiId + " " + s.ShiireSakiKaisya
-            }).ToList();
-            // 仕入先コードリストを格納したViewModelを作成し渡す
-            return new ChumonKeyViewModel()
+            // 処理１：仕入先コードリストを設定する
+            var queriedShiireSakiIdList = _context.ShiireSakiMaster
+                .OrderBy(s => s.ShiireSakiId)
+                .Select(s => new SelectListItem
+                {
+                    Value = s.ShiireSakiId,
+                    Text = s.ShiireSakiId + " " + s.ShiireSakiKaisya
+                })
+                .ToList();
+            // 仕入先コードリストを格納した注文実績検索用ViewModelを作成し渡す
+            return new ChumonSearchViewModel()
             {
                 ShiireSakiId = null,
                 ChumonDate = DateTime.Today,
-                ShiireSakiIdList = list
+                ShiireSakiIdList = queriedShiireSakiIdList,
             };
         }
 

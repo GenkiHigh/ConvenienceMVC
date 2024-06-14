@@ -1,5 +1,4 @@
-﻿using ConvenienceMVC.Models.Entities.Shiires;
-using ConvenienceMVC.Models.Entities.UserLogs;
+﻿using ConvenienceMVC.Models.Entities.UserLogs;
 using ConvenienceMVC.Models.Interfaces.Defines;
 using Newtonsoft.Json;
 

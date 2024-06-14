@@ -21,52 +21,39 @@ namespace ConvenienceMVC.Models.Services.Chumons
         {
             // DBコンテキスト設定
             _context = context;
-            // 注文インスタンス生成
+            // 注文インターフェースインスタンス生成
             Chumon = new Chumon(_context);
         }
 
-        /*
-         * 注文実績設定
-         * inShiireSakiId：選択された仕入先コード
-         * inChumonDate：選択された注文日
-         */
-        public async Task<ChumonViewModel> ChumonSetting(string inShiireSakiId, DateOnly inChumonDate)
+        // 注文実績設定
+        // inShiireSakiId：検索画面で選択された仕入先コード
+        // inChumonDate：検索画面で選択された注文日
+        public async Task<ChumonUpdateViewModel> ChumonSetting(string inShiireSakiId, DateOnly inChumonDate)
         {
-            /*
-             * 選択された仕入先コード、注文日を元に注文実績を問い合わせる
-             * 問い合わせた結果選択した要素を持つ注文実績がある場合、仕入先マスタをインクルードする
-             * 選択した要素を持つ注文実績が無い場合、注文実績を新規作成する
-             * 注文実績を検索、作成後のデータに更新する
-             * 更新後の注文実績を持つ注文実績更新用ViewModelを戻り値に渡す
-             */
+            // 処理１：注文実績を検索する
+            // 処理２：注文実績を設定する
+            // 戻り値：検索結果、又は新規作成した注文実績を格納した注文実績更新用ViewModel
 
-            // 注文実績を問い合わせる
+            // 処理１：注文実績を検索する
             ChumonJisseki queriedChumonJisseki = Chumon.ChumonQuery(inShiireSakiId, inChumonDate);
-
-            // 指定した注文実績が存在している場合
+            // 処理１－１：注文実績がある場合
             if (queriedChumonJisseki != default)
             {
-                // 注文実績に必要な要素をインクルード
-                queriedChumonJisseki = ChumonJissekiInclude(queriedChumonJisseki);
-
-                IList<ChumonJissekiMeisai> meisais = await _context.ChumonJissekiMeisai
-                    .Where(mei => mei.ChumonId == queriedChumonJisseki.ChumonId)
-                    .OrderBy(mei => mei.ShohinId).ToListAsync();
-
-                queriedChumonJisseki.ChumonJissekiMeisais = meisais;
+                // 処理１－１－１：注文実績に対応する別テーブルをインクルードする
+                queriedChumonJisseki = await ChumonJissekiInclude(queriedChumonJisseki);
             }
-            // 指定した注文実績が存在していない場合
+            // 処理１－２：注文実績が無い場合
             else
             {
-                // 注文実績を新規作成
+                // 処理１－２－１：注文実績を新規作成する
                 queriedChumonJisseki = Chumon.ChumonCreate(inShiireSakiId, inChumonDate);
             }
 
-            // 注文実績更新
+            // 処理２：検索した注文実績、又は新規作成した注文実績を渡す
             Chumon.ChumonJisseki = queriedChumonJisseki;
 
             // 注文実績更新用ViewModelを作成し渡す
-            return new ChumonViewModel()
+            return new ChumonUpdateViewModel()
             {
                 ChumonJisseki = Chumon.ChumonJisseki,
                 IsNormal = false,
@@ -74,73 +61,81 @@ namespace ConvenienceMVC.Models.Services.Chumons
             };
         }
 
-        /*
-         * 注文実績更新
-         * inChumonViewModel：入力された注文数を格納した注文実績更新用ViewModel
-         */
-        public async Task<ChumonViewModel> ChumonCommit(ChumonViewModel inChumonViewModel)
+        // 注文実績更新
+        // inChumonUpdateViewModel：更新画面で入力された注文数を格納した注文実績更新用ViewModel
+        public async Task<ChumonUpdateViewModel> ChumonCommit(ChumonUpdateViewModel inChumonUpdateViewModel)
         {
-            /*
-             * 初期表示されていた注文数と入力後の注文数を比較して注文数が変更されたかを判定
-             * 入力後の注文残を入力後の注文数と同期
-             * 入力後の注文実績を元にDBに追加、又はDBを更新
-             * DBを更新
-             * 注文実績に必要な要素をインクルード
-             * 注文実績を更新
-             * 注文実績更新用ViewModelを作成し渡す
-             */
+            // 処理１：取得した注文実績明細のデータを変動する
+            // 処理２：注文実績を更新する
+            // 処理３：DBを更新する
+            // 処理４：注文実績に対応する別テーブルをインクルードする
+            // 処理５：注文実績を設定する
+            // 戻り値：更新後の注文実績を格納した注文実績更新用ViewModel
 
-            // 注文数が変更されたかを判定
+            // 処理１：取得した注文実績明細のデータを変動する
             bool isChange = false;
-            for (int meisaisCounter = 0; meisaisCounter < inChumonViewModel.ChumonJisseki.ChumonJissekiMeisais.Count; meisaisCounter++)
+            ChumonUpdateViewModel getChumonUpdateViewModel = inChumonUpdateViewModel;
+            for (int meisaisCounter = 0; meisaisCounter < getChumonUpdateViewModel.ChumonJisseki.ChumonJissekiMeisais.Count; meisaisCounter++)
             {
-                // 変更前の注文数と変更後の注文数を比較して変化しているかを判定
+                // 処理１－１：入力前の注文数と入力後の注文数を比較する
                 if (Chumon.ChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonSu !=
-                    inChumonViewModel.ChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonSu)
+                    getChumonUpdateViewModel.ChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonSu)
                 {
+                    // 変化したことを記憶する
                     isChange = true;
                 }
-                // 変更後の注文数残を同期
-                inChumonViewModel.ChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonZan =
-                    inChumonViewModel.ChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonSu;
+                // 処理１－２：入力後の注文数残を同期する
+                getChumonUpdateViewModel.ChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonZan =
+                    getChumonUpdateViewModel.ChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonSu;
             }
-            // 注文更新
-            // 前回か最新の結果が返ってくる
-            ChumonJisseki updateChumonJisseki = Chumon.ChumonUpdate(inChumonViewModel.ChumonJisseki);
 
-            // DB更新
+            // 処理２：注文実績を更新する
+            ChumonJisseki updateChumonJisseki = Chumon.ChumonUpdate(getChumonUpdateViewModel.ChumonJisseki);
+
+            // 処理３：DBを更新する
             await _context.SaveChangesAsync();
 
-            // 注文実績必要様をインクルード
-            updateChumonJisseki = ChumonJissekiInclude(updateChumonJisseki);
+            // 処理４：注文実績に対応する別テーブルをインクルードする
+            ChumonJisseki includeChumonJisseki = await ChumonJissekiInclude(updateChumonJisseki);
 
-            // 注文実績更新
-            Chumon.ChumonJisseki = updateChumonJisseki;
+            // 処理５：注文実績を設定する
+            Chumon.ChumonJisseki = includeChumonJisseki;
 
-            return new ChumonViewModel()
+            // 注文実績更新用ViewModelを作成し渡す
+            return new ChumonUpdateViewModel()
             {
-                ChumonJisseki = updateChumonJisseki,
+                ChumonJisseki = includeChumonJisseki,
+                // 更新したかを判定する
                 IsNormal = isChange ? true : false,
+                // 表示する文字列
                 Remark = isChange ? "更新完了" : string.Empty,
             };
         }
 
-        // 注文実績必要要素インクルード
-        private ChumonJisseki ChumonJissekiInclude(ChumonJisseki inChumonJisseki)
+        // 注文実績対応別テーブルインクルード
+        // inChumonJisseki：インクルード元の注文実績
+        private async Task<ChumonJisseki> ChumonJissekiInclude(ChumonJisseki inChumonJisseki)
         {
-            ChumonJisseki queriedChumonJisseki = _context.ChumonJisseki
+            // 処理１：注文実績に対応する別テーブルをインクルードする
+            // 処理２：注文実績明細をソートする
+            // 戻り値：インクルード後の注文実績明細
+
+            // 処理１：注文実績明細、仕入先マスタ、仕入マスタ、商品マスタをインクルードする
+            ChumonJisseki includeChumonJisseki = await _context.ChumonJisseki
                 .Where(ch => ch.ChumonId == inChumonJisseki.ChumonId && ch.ShiireSakiId == inChumonJisseki.ShiireSakiId)
                 .Include(chm => chm.ChumonJissekiMeisais)
                 .ThenInclude(shi => shi.ShiireMaster)
                 .ThenInclude(sho => sho.ShohinMaster)
                 .Include(shs => shs.ShiireSakiMaster)
-                .FirstOrDefault();
+                .FirstAsync();
 
-            queriedChumonJisseki.ChumonJissekiMeisais = _context.ChumonJissekiMeisai
-                .Where(mei => mei.ChumonId == queriedChumonJisseki.ChumonId)
-                .OrderBy(mei => mei.ShohinId).ToList();
+            // 処理２：注文実績明細を商品コードでソートする
+            includeChumonJisseki.ChumonJissekiMeisais = await _context.ChumonJissekiMeisai
+                .Where(mei => mei.ChumonId == includeChumonJisseki.ChumonId)
+                .OrderBy(mei => mei.ShohinId).ToListAsync();
 
-            return queriedChumonJisseki;
+            // インクルード後の注文実績を渡す
+            return includeChumonJisseki;
         }
     }
 }

@@ -159,10 +159,10 @@ namespace ConvenienceMVC.Controllers
             // 処理４：注文実績を更新する
             ChumonUpdateViewModel updateChumonViewModel = await ChumonService.ChumonCommit(getChumonViewModel);
 
-            // 処理５：更新、又は追加後の注文実績を保存する
+            // 処理５：変更後の注文実績を保存する
             KeepObject();
 
-            // 更新、又は追加後の注文実績を渡しながら更新画面に移動する
+            // 変更後のデータを渡しながら更新画面に移動する
             return View("Update", updateChumonViewModel);
         }
 

@@ -104,7 +104,7 @@ namespace ConvenienceMVC.Models.Services.Chumons
             // 注文実績更新用ViewModelを作成し渡す
             return new ChumonUpdateViewModel()
             {
-                ChumonJisseki = includeChumonJisseki,
+                ChumonJisseki = Chumon.ChumonJisseki,
                 // 更新したかを判定する
                 IsNormal = isChange ? true : false,
                 // 表示する文字列

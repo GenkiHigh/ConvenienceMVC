@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace ConvenienceMVC.Models.Views.Shiires
 {
     // 仕入実績検索用ViewModel
-    public class ShiireKeyViewModel
+    public class ShiireSearchViewModel
     {
         [Column("chumon_code")]
         [DisplayName("注文コード")]

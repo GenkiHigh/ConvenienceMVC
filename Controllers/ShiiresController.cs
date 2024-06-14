@@ -59,7 +59,7 @@ namespace ConvenienceMVC.Controllers
         public IActionResult Search()
         {
             // 仕入実績、倉庫在庫検索用ViewModelを設定、Viewに渡す
-            ShiireKeyViewModel queriedShiireKeyViewModel = SetShiireKeyViewModel();
+            ShiireSearchViewModel queriedShiireKeyViewModel = SetShiireKeyViewModel();
             return View(queriedShiireKeyViewModel);
         }
         /*
@@ -68,7 +68,7 @@ namespace ConvenienceMVC.Controllers
          */
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Search(ShiireKeyViewModel inShiireKeyViewModel)
+        public async Task<IActionResult> Search(ShiireSearchViewModel inShiireKeyViewModel)
         {
             /*
              * 不具合なく入力されたかを判定
@@ -92,7 +92,7 @@ namespace ConvenienceMVC.Controllers
             }
 
             // 仕入実績、倉庫在庫設定
-            ShiireViewModel queriedShiireViewModel = ShiireService.ShiireSetting(inShiireKeyViewModel.ChumonId);
+            ShiireUpdateViewModel queriedShiireViewModel = await ShiireService.ShiireSetting(inShiireKeyViewModel.ChumonId);
 
             // 仕入実績、倉庫在庫保存
             KeepObjects();
@@ -105,7 +105,7 @@ namespace ConvenienceMVC.Controllers
          * 仕入実績、倉庫在庫更新(初期設定)
          * inShiireViewModel：初期表示したいデータを格納したViewModel
          */
-        public IActionResult Update(ShiireViewModel inShiireViewModel)
+        public IActionResult Update(ShiireUpdateViewModel inShiireViewModel)
         {
             // 更新画面を初期表示
             return View(inShiireViewModel);
@@ -117,7 +117,7 @@ namespace ConvenienceMVC.Controllers
          */
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Update(int id, ShiireViewModel inShiireViewModel)
+        public async Task<IActionResult> Update(int id, ShiireUpdateViewModel inShiireViewModel)
         {
             /*
              * 不具合なく入力されたかを判定
@@ -134,7 +134,7 @@ namespace ConvenienceMVC.Controllers
             };
             ModelState.Clear();
 
-            ShiireViewModel getShiireViewModel = inShiireViewModel;
+            ShiireUpdateViewModel getShiireViewModel = inShiireViewModel;
 
             // ログインしていない場合
             UserLog queriedUserLog = DefineService.IsUserSession();
@@ -157,7 +157,7 @@ namespace ConvenienceMVC.Controllers
             GetObjects();
 
             // 仕入実績、倉庫在庫更新
-            ShiireViewModel queriedShiireViewModel = await ShiireService.ShiireCommit(getShiireViewModel);
+            ShiireUpdateViewModel queriedShiireViewModel = await ShiireService.ShiireCommit(getShiireViewModel);
 
             // 仕入実績、倉庫在庫保存
             KeepObjects();
@@ -167,7 +167,7 @@ namespace ConvenienceMVC.Controllers
         }
 
         // 仕入実績、倉庫在庫検索用ViewModel設定
-        private ShiireKeyViewModel SetShiireKeyViewModel()
+        private ShiireSearchViewModel SetShiireKeyViewModel()
         {
             /*
              * 注文コードをまとめたリストを作成
@@ -202,7 +202,7 @@ namespace ConvenienceMVC.Controllers
             }).Reverse().ToList();
 
             // 注文コードリストを格納したViewModelを作成し渡す
-            return new ShiireKeyViewModel()
+            return new ShiireSearchViewModel()
             {
                 ChumonId = null,
                 ChumonIds = list,

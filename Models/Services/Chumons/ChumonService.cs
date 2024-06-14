@@ -35,7 +35,7 @@ namespace ConvenienceMVC.Models.Services.Chumons
             // 戻り値：検索結果、又は新規作成した注文実績を格納した注文実績更新用ViewModel
 
             // 処理１：注文実績を検索する
-            ChumonJisseki queriedChumonJisseki = Chumon.ChumonQuery(inShiireSakiId, inChumonDate);
+            ChumonJisseki queriedChumonJisseki = await Chumon.ChumonQuery(inShiireSakiId, inChumonDate);
             // 処理１－１：注文実績がある場合
             if (queriedChumonJisseki != default)
             {
@@ -46,7 +46,7 @@ namespace ConvenienceMVC.Models.Services.Chumons
             else
             {
                 // 処理１－２－１：注文実績を新規作成する
-                queriedChumonJisseki = Chumon.ChumonCreate(inShiireSakiId, inChumonDate);
+                queriedChumonJisseki = await Chumon.ChumonCreate(inShiireSakiId, inChumonDate);
             }
 
             // 処理２：検索した注文実績、又は新規作成した注文実績を渡す
@@ -90,7 +90,7 @@ namespace ConvenienceMVC.Models.Services.Chumons
             }
 
             // 処理２：注文実績を更新する
-            ChumonJisseki updateChumonJisseki = Chumon.ChumonUpdate(getChumonUpdateViewModel.ChumonJisseki);
+            ChumonJisseki updateChumonJisseki = await Chumon.ChumonUpdate(getChumonUpdateViewModel.ChumonJisseki);
 
             // 処理３：DBを更新する
             await _context.SaveChangesAsync();

@@ -30,7 +30,7 @@ namespace ConvenienceMVC.Models.Services.Shiires
          * 仕入実績、倉庫在庫設定
          * inChumonId：選択された注文コード
          */
-        public ShiireViewModel ShiireSetting(string inChumonId)
+        public async Task<ShiireUpdateViewModel> ShiireSetting(string inChumonId)
         {
             /*
              * 選択された注文コードを基に対応する仕入実績がDBにあるかを検索
@@ -47,17 +47,17 @@ namespace ConvenienceMVC.Models.Services.Shiires
              */
 
             // 仕入実績を検索
-            IList<ShiireJisseki> queryShiireJissekis = Shiire.ShiireQuery(inChumonId);
+            IList<ShiireJisseki> queryShiireJissekis = await Shiire.ShiireQuery(inChumonId);
             // 仕入実績を検索して見つからなかった場合
             if (queryShiireJissekis.Count == 0)
             {
                 // 注文実績明細があるかどうかを調べる
                 // 注文はされているけどまだ仕入れていない可能性もある為
                 // 注文はされている場合
-                if (Shiire.IsChumonJissekiMeisai(inChumonId))
+                if (await Shiire.ChumonJissekiMeisaiQuery(inChumonId) != null)
                 {
                     // 仕入実績新規作成
-                    queryShiireJissekis = Shiire.ShiireCreate(inChumonId);
+                    queryShiireJissekis = await Shiire.ShiireCreate(inChumonId);
                 }
                 // 注文すらされていない場合
                 else
@@ -69,7 +69,7 @@ namespace ConvenienceMVC.Models.Services.Shiires
             Shiire.ShiireJissekis = queryShiireJissekis.OrderBy(sj => sj.ShohinId).ToList();
 
             // 倉庫在庫を検索
-            IList<SokoZaiko> querySokoZaikos = Shiire.ZaikoQuery(queryShiireJissekis.First().ShiireSakiId);
+            IList<SokoZaiko> querySokoZaikos = await Shiire.ZaikoQuery(queryShiireJissekis.First().ShiireSakiId);
             // 倉庫在庫を検索して見つからなかった場合
             if (querySokoZaikos.Count == 0)
             {
@@ -79,7 +79,7 @@ namespace ConvenienceMVC.Models.Services.Shiires
             Shiire.SokoZaikos = querySokoZaikos.OrderBy(sok => sok.ShohinId).ToList();
 
             // 作成した又は見つけた仕入実績、倉庫在庫を格納したViewModelを作成し渡す
-            return new ShiireViewModel()
+            return new ShiireUpdateViewModel()
             {
                 ShiireJissekis = Shiire.ShiireJissekis,
                 SokoZaikos = Shiire.SokoZaikos,
@@ -92,7 +92,7 @@ namespace ConvenienceMVC.Models.Services.Shiires
          * 仕入実績、倉庫在庫更新
          * inShiireViewModel：入力したデータを格納したViewModel
          */
-        public async Task<ShiireViewModel> ShiireCommit(ShiireViewModel inShiireViewModel)
+        public async Task<ShiireUpdateViewModel> ShiireCommit(ShiireUpdateViewModel inShiireViewModel)
         {
             /*
              * 初期表示されていた内容と入力後の内容を比較して変更されたかを判定　@①
@@ -124,9 +124,9 @@ namespace ConvenienceMVC.Models.Services.Shiires
             }
 
             // 納入数に応じて注文残、倉庫在庫数変動
-            ShiireViewModel updateShiireViewModel = Shiire.ChumonZanBalance(inShiireViewModel);
+            ShiireUpdateViewModel updateShiireViewModel = Shiire.ChumonZanBalance(inShiireViewModel);
             // 仕入実績更新
-            IList<ShiireJisseki>? updateShiireJissekis = Shiire.ShiireUpdate(updateShiireViewModel.ShiireJissekis);
+            IList<ShiireJisseki>? updateShiireJissekis = await Shiire.ShiireUpdate(updateShiireViewModel.ShiireJissekis);
             // 在庫倉庫更新
             IList<SokoZaiko>? updateSokoZaikos = Shiire.ZaikoUpdate(updateShiireViewModel.SokoZaikos);
 
@@ -145,7 +145,7 @@ namespace ConvenienceMVC.Models.Services.Shiires
 
             // 入力前後で納入数が変動していた場合、更新完了を表示するようにする
             // 更新後の仕入実績、倉庫在庫を格納したViewModelを作成し渡す
-            return new ShiireViewModel()
+            return new ShiireUpdateViewModel()
             {
                 ShiireJissekis = Shiire.ShiireJissekis,
                 SokoZaikos = Shiire.SokoZaikos,

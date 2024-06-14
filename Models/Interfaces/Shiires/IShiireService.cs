@@ -9,8 +9,9 @@ namespace ConvenienceMVC.Models.Interfaces.Shiires
         public IShiire Shiire { get; set; }
 
         // 仕入実績、倉庫在庫設定
-        public ShiireViewModel ShiireSetting(string inChumonId);
+        public Task<ShiireUpdateViewModel> ShiireSetting(string inChumonId);
+
         // 仕入実績、倉庫在庫更新
-        public Task<ShiireViewModel> ShiireCommit(ShiireViewModel inShiireViewModel);
+        public Task<ShiireUpdateViewModel> ShiireCommit(ShiireUpdateViewModel inShiireViewModel);
     }
 }

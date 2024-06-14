@@ -9,10 +9,10 @@ namespace ConvenienceMVC.Models.Interfaces.Chumons
         public ChumonJisseki ChumonJisseki { get; set; }
 
         // 注文実績検索
-        public ChumonJisseki ChumonQuery(string inShiireSakiCode, DateOnly inChumonDate);
+        public Task<ChumonJisseki> ChumonQuery(string inShiireSakiCode, DateOnly inChumonDate);
         // 注文実績作成
-        public ChumonJisseki ChumonCreate(string inShiireSakiCode, DateOnly inChumonDate);
+        public Task<ChumonJisseki> ChumonCreate(string inShiireSakiCode, DateOnly inChumonDate);
         // 注文実績更新
-        public ChumonJisseki ChumonUpdate(ChumonJisseki inChumonJisseki);
+        public Task<ChumonJisseki> ChumonUpdate(ChumonJisseki inChumonJisseki);
     }
 }

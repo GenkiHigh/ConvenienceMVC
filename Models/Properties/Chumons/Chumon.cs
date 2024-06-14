@@ -24,19 +24,19 @@ namespace ConvenienceMVC.Models.Properties.Chumons
         // 注文実績検索
         // inShiireSakiCode：検索画面で選択された仕入先コード
         // inChumonDate：検索画面で選択された仕入先コード
-        public ChumonJisseki ChumonQuery(string inShiireSakiCode, DateOnly inChumonDate)
+        public async Task<ChumonJisseki> ChumonQuery(string inShiireSakiCode, DateOnly inChumonDate)
         {
             // 機能１：注文実績を検索する
             // 戻り値：見つかった注文実績、又はnull
 
             // 機能１：選択された仕入先コードで注文実績を検索する
-            ChumonJisseki? isChumonJisseki = _context.ChumonJisseki
+            ChumonJisseki? isChumonJisseki = await _context.ChumonJisseki
                 .Where(ch => ch.ShiireSakiId == inShiireSakiCode && ch.ChumonDate == inChumonDate)
                 .Include(chm => chm.ChumonJissekiMeisais)
                 .ThenInclude(shi => shi.ShiireMaster)
                 .ThenInclude(sho => sho.ShohinMaster)
                 .Include(ch => ch.ShiireSakiMaster)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
 
             // 見つけた注文実績、又はnullを格納する
             ChumonJisseki = isChumonJisseki;
@@ -48,14 +48,14 @@ namespace ConvenienceMVC.Models.Properties.Chumons
         // 注文実績作成
         // inShiireSakiCode：検索画面で選択された仕入先コード
         // inChumonDate：検索画面で選択された仕入先コード
-        public ChumonJisseki ChumonCreate(string inShiireSakiCode, DateOnly inChumonDate)
+        public async Task<ChumonJisseki> ChumonCreate(string inShiireSakiCode, DateOnly inChumonDate)
         {
             // 機能１：新規注文実績を作成する
             // 機能２：新規注文実績明細を作成する
             // 戻り値：新規作成した注文実績、注文実績明細
 
             // 機能１：注文IDを発番する
-            string createdChumonId = ChumonIDCreate(inChumonDate);
+            string createdChumonId = await ChumonIDCreate(inChumonDate);
             // 機能１ー１：新規注文実績を作成する
             ChumonJisseki newChumonJisseki = new ChumonJisseki()
             {
@@ -96,7 +96,7 @@ namespace ConvenienceMVC.Models.Properties.Chumons
 
         // 注文実績更新
         // inChumonJisseki：更新画面で入力された注文実績
-        public ChumonJisseki ChumonUpdate(ChumonJisseki inChumonJisseki)
+        public async Task<ChumonJisseki> ChumonUpdate(ChumonJisseki inChumonJisseki)
         {
             // 機能１：注文実績を検索する
             // 機能２A：注文実績がある場合、注文数残を変動させる
@@ -105,10 +105,10 @@ namespace ConvenienceMVC.Models.Properties.Chumons
             // 戻り値：追加、又は更新後の注文実績
 
             // 機能１：注文実績を検索する
-            ChumonJisseki? isChumonJisseki = _context.ChumonJisseki
+            ChumonJisseki? isChumonJisseki = await _context.ChumonJisseki
                 .Where(chu => chu.ChumonId == inChumonJisseki.ChumonId && chu.ShiireSakiId == inChumonJisseki.ShiireSakiId)
                 .Include(chu => chu.ChumonJissekiMeisais)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
             // 機能１ー１：DBに注文実績がある場合
             if (isChumonJisseki != null)
             {
@@ -173,7 +173,7 @@ namespace ConvenienceMVC.Models.Properties.Chumons
 
         // 注文ID発番
         // inChumonDate：検索画面で選択された注文日
-        public string ChumonIDCreate(DateOnly inChumonDate)
+        private async Task<string> ChumonIDCreate(DateOnly inChumonDate)
         {
             // 機能１：注文ID、選択された注文日、DB内の注文日、注文番号を設定する
             // 戻り値："注文年月日-注文番号三桁"の文字列(その日の注文実績数が1000以上の場合null)
@@ -188,8 +188,8 @@ namespace ConvenienceMVC.Models.Properties.Chumons
             }
 
             // 機能１：注文ID、選択注文日、実績内注文日、注文番号を設定する
-            string queriedChumonId = _context.ChumonJisseki.AsNoTracking()
-                .OrderBy(x => x.ChumonId).Select(x => x.ChumonId).Last();
+            string queriedChumonId = await _context.ChumonJisseki.AsNoTracking()
+                .OrderBy(x => x.ChumonId).Select(x => x.ChumonId).LastAsync();
             string selectChumonDate = inChumonDate.ToString("yyyyMMdd-");
             string queriedChumonDate = queriedChumonId.Substring(0, 9);
             string chumonNumber = queriedChumonId.Substring(queriedChumonId.Length - 3);

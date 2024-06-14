@@ -6,7 +6,9 @@ namespace ConvenienceMVC.Models.Views.Chumons
     public class ChumonUpdateViewModel
     {
         public ChumonJisseki ChumonJisseki { get; set; }
+
         public bool? IsNormal { get; set; }
+
         public string? Remark { get; set; } = string.Empty;
     }
 }

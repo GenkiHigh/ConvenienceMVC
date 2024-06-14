@@ -21,7 +21,6 @@ namespace ConvenienceMVC.Models.Services.Defines
             // セッション情報が無い場合
             if (userSession == null)
             {
-                // ログインページに飛ぶ
                 return null;
             }
             else

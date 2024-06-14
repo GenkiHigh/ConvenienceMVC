@@ -26,26 +26,10 @@ namespace ConvenienceMVC.Models.Services.Shiires
             Shiire = new Shiire(_context);
         }
 
-        /*
-         * 仕入実績、倉庫在庫設定
-         * inChumonId：選択された注文コード
-         */
+        // 仕入実績、倉庫在庫設定
+        // inChumonId：検索画面で選択された注文コード
         public async Task<ShiireUpdateViewModel> ShiireSetting(string inChumonId)
         {
-            /*
-             * 選択された注文コードを基に対応する仕入実績がDBにあるかを検索
-             * ある場合、見つかった仕入実績を使用
-             * 無い場合、選択された注文コードを基に対応する注文実績明細がDBにあるかを検索
-             * ある場合、仕入実績を新規作成
-             * 無い場合、エラー表示
-             * 
-             * 見つかった仕入実績又は新規作成した仕入実績の仕入先コードを基に倉庫在庫がDBにあるかを検索
-             * ある場合、見つかった倉庫在庫を使用
-             * 無い場合、倉庫在庫を新規作成
-             * 
-             * 作成した又は見つけた仕入実績、倉庫在庫を格納したViewModelを作成し戻り値に渡す
-             */
-
             // 仕入実績を検索
             IList<ShiireJisseki> queryShiireJissekis = await Shiire.ShiireQuery(inChumonId);
             // 仕入実績を検索して見つからなかった場合
@@ -74,7 +58,7 @@ namespace ConvenienceMVC.Models.Services.Shiires
             if (querySokoZaikos.Count == 0)
             {
                 // 倉庫在庫新規作成
-                querySokoZaikos = Shiire.ZaikoCreate(queryShiireJissekis.First().ShiireSakiId);
+                querySokoZaikos = await Shiire.ZaikoCreate(queryShiireJissekis.First().ShiireSakiId);
             }
             Shiire.SokoZaikos = querySokoZaikos.OrderBy(sok => sok.ShohinId).ToList();
 
@@ -124,19 +108,19 @@ namespace ConvenienceMVC.Models.Services.Shiires
             }
 
             // 納入数に応じて注文残、倉庫在庫数変動
-            ShiireUpdateViewModel updateShiireViewModel = Shiire.ChumonZanBalance(inShiireViewModel);
+            ShiireUpdateViewModel updateShiireViewModel = await Shiire.ChumonZanBalance(inShiireViewModel);
             // 仕入実績更新
-            IList<ShiireJisseki>? updateShiireJissekis = await Shiire.ShiireUpdate(updateShiireViewModel.ShiireJissekis);
+            IList<ShiireJisseki> updateShiireJissekis = await Shiire.ShiireUpdate(updateShiireViewModel.ShiireJissekis);
             // 在庫倉庫更新
-            IList<SokoZaiko>? updateSokoZaikos = Shiire.ZaikoUpdate(updateShiireViewModel.SokoZaikos);
+            IList<SokoZaiko> updateSokoZaikos = await Shiire.ZaikoUpdate(updateShiireViewModel.SokoZaikos);
 
             // DB更新
             await _context.SaveChangesAsync();
 
             // 仕入実績対応要素インクルード
-            updateShiireJissekis = IncludeShiireJissekis(updateShiireJissekis);
+            updateShiireJissekis = await IncludeShiireJissekis(updateShiireJissekis);
             // 倉庫在庫対応要素インクルード
-            updateSokoZaikos = IncludeSokoZaikos(updateSokoZaikos);
+            updateSokoZaikos = await IncludeSokoZaikos(updateSokoZaikos);
 
             // 仕入実績設定
             Shiire.ShiireJissekis = updateShiireJissekis.OrderBy(sj => sj.ShohinId).ToList();
@@ -154,24 +138,19 @@ namespace ConvenienceMVC.Models.Services.Shiires
             };
         }
 
-        /*
-         * 仕入実績対応要素インクルード
-         * inShiireJissekis：更新後の仕入実績
-         */
-        private IList<ShiireJisseki> IncludeShiireJissekis(IList<ShiireJisseki>? inShiireJissekis)
+        // 仕入実績対応別テーブルインクルード
+        // inShiireJissekis：インクルード元の仕入実績リスト
+        private async Task<IList<ShiireJisseki>> IncludeShiireJissekis(IList<ShiireJisseki> inShiireJissekis)
         {
-            /*
-             * 更新後の仕入実績に対応する要素をインクルード
-             * インクルード後の仕入実績を戻り値に渡す
-             */
+            // 処理１：対応する別テーブルをインクルードする
+            // 戻り値：インクルード後仕入実績リスト
 
-            // インクルード結果を格納するリストを作成
+            // 処理１：対応する別テーブルをインクルードする
             IList<ShiireJisseki> queryShiireJissekis = new List<ShiireJisseki>();
-            // 対応する要素をインクルードし、リストに追加
             foreach (ShiireJisseki shiire in inShiireJissekis)
             {
-                // 対応する要素をインクルード
-                ShiireJisseki queryShiireJisseki = _context.ShiireJisseki
+                // 処理１－１：対応する注文実績明細、注文実績、仕入先マスタ、仕入マスタ、商品マスタをインクルードする
+                ShiireJisseki queryShiireJisseki = await _context.ShiireJisseki
                     .Where(sj => sj.ChumonId == shiire.ChumonId && sj.ShiireDate == shiire.ShiireDate &&
                     sj.SeqByShiireDate == shiire.SeqByShiireDate && sj.ShiireSakiId == shiire.ShiireSakiId &&
                     sj.ShiirePrdId == shiire.ShiirePrdId)
@@ -180,44 +159,37 @@ namespace ConvenienceMVC.Models.Services.Shiires
                     .ThenInclude(chu => chu.ShiireSakiMaster)
                     .ThenInclude(saki => saki.ShiireMasters)
                     .ThenInclude(sm => sm.ShohinMaster)
-                    .FirstOrDefault();
-
-                // リストに追加
+                    .FirstAsync();
+                // 処理１－２：インクルード後仕入実績リストに追加する
                 queryShiireJissekis.Add(queryShiireJisseki);
             }
 
-            // インクルード後の仕入実績を渡す
+            // インクルード後仕入実績リストを渡す
             return queryShiireJissekis;
         }
-        /*
-         * 倉庫在庫対応要素インクルード
-         * inSokoZaikos：更新後の倉庫在庫
-         */
-        private IList<SokoZaiko> IncludeSokoZaikos(IList<SokoZaiko>? inSokoZaikos)
+        // 倉庫在庫対応別テーブルインクルード
+        // inSokoZaiko：インクルード元の倉庫在庫リスト
+        private async Task<IList<SokoZaiko>> IncludeSokoZaikos(IList<SokoZaiko> inSokoZaikos)
         {
-            /*
-             * 更新後の倉庫在庫に対応する要素をインクルード
-             * インクルード後の倉庫在庫を戻り値に渡す
-             */
+            // 処理１：対応する別テーブルをインクルードする
+            // 戻り値：インクルード後倉庫在庫リスト
 
-            // インクルード結果を格納するリストを作成
+            // 処理１：対応する別テーブルをインクルードする
             IList<SokoZaiko> querySokoZaikos = new List<SokoZaiko>();
-            // 対応する要素をインクルードし、リストに追加
             foreach (SokoZaiko zaiko in inSokoZaikos)
             {
-                // 対応する要素をインクルード
-                SokoZaiko querySokoZaiko = _context.SokoZaiko
+                // 処理１－１：対応する仕入マスタ、商品マスタをインクルードする
+                SokoZaiko querySokoZaiko = await _context.SokoZaiko
                     .Where(sk => sk.ShiireSakiId == zaiko.ShiireSakiId && sk.ShiirePrdId == zaiko.ShiirePrdId &&
                     sk.ShohinId == zaiko.ShohinId)
                     .Include(sk => sk.ShiireMaster)
                     .ThenInclude(sm => sm.ShohinMaster)
-                    .FirstOrDefault();
-
-                // リストに追加
+                    .FirstAsync();
+                // 処理１－２：インクルード後倉庫在庫リストに追加する
                 querySokoZaikos.Add(querySokoZaiko);
             }
 
-            // インクルード後の倉庫在庫を渡す
+            // インクルード後倉庫在庫リストを渡す
             return querySokoZaikos;
         }
     }

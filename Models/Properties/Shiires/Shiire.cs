@@ -15,6 +15,7 @@ namespace ConvenienceMVC.Models.Properties.Shiires
 
         // 仕入実績リスト
         public IList<ShiireJisseki> ShiireJissekis { get; set; }
+
         // 倉庫在庫リスト
         public IList<SokoZaiko> SokoZaikos { get; set; }
 
@@ -331,47 +332,50 @@ namespace ConvenienceMVC.Models.Properties.Shiires
         }
 
         // 注文残、倉庫在庫数変動
-        // inShiireUpdateViewModel：
+        // inShiireUpdateViewModel：更新画面での入力前の仕入実績、倉庫在庫更新用ViewModel
         public async Task<ShiireUpdateViewModel> ChumonZanBalance(ShiireUpdateViewModel inShiireUpdateViewModel)
         {
-            // 注文実績明細取得
+            // 処理１：必要な変数を設定する
+            // 処理２：注文残、倉庫在庫数を変動する
+            // 戻り値：変動後の仕入実績、倉庫在庫を格納した更新用ViewModel
+
+            // 処理１：注文実績明細を取得する
             IList<ChumonJissekiMeisai> queriedMeisais = await _context.ChumonJissekiMeisai
                 .Where(mei => mei.ShiireSakiId == inShiireUpdateViewModel.ShiireJissekis[0].ShiireSakiId &&
                 mei.ChumonId == inShiireUpdateViewModel.ShiireJissekis[0].ChumonId)
                 .OrderBy(mei => mei.ShohinId)
                 .ToListAsync();
-
-            // 変更後仕入実績リスト設定
+            // 処理１ー１：変更後仕入実績リストを設定する
             IList<ShiireJisseki> transShiireJissekis = new List<ShiireJisseki>();
-            // 変更後倉庫在庫リスト設定
+            // 処理１－２：変更後倉庫在庫リストを設定する
             IList<SokoZaiko> transSokoZaikos = new List<SokoZaiko>();
 
-            // 注文残、倉庫在庫数を変動
+            // 処理２：注文残、倉庫在庫数を変動する
             for (int shiiresCounter = 0; shiiresCounter < inShiireUpdateViewModel.ShiireJissekis.Count; shiiresCounter++)
             {
+                // 処理２－１：仕入実績、倉庫在庫を設定する
                 transShiireJissekis.Add(inShiireUpdateViewModel.ShiireJissekis[shiiresCounter]);
                 transSokoZaikos.Add(inShiireUpdateViewModel.SokoZaikos[shiiresCounter]);
 
-                // 注文残以上の納入不可
+                // 処理２－２：注文残以上の納入を制限する
                 transShiireJissekis[shiiresCounter].NonyuSu =
                     inShiireUpdateViewModel.ShiireJissekis[shiiresCounter].NonyuSu - ShiireJissekis[shiiresCounter].NonyuSu
                     <= queriedMeisais[shiiresCounter].ChumonZan ?
                     inShiireUpdateViewModel.ShiireJissekis[shiiresCounter].NonyuSu :
                     ShiireJissekis[shiiresCounter].NonyuSu + queriedMeisais[shiiresCounter].ChumonZan;
 
-                // 前回の納入数と比較して注文残、在庫数の変動量を設定
+                // 処理２－３：更新画面での入力前の納入数と比較して注文残、倉庫在庫数の変動量を設定する
                 decimal transNum = inShiireUpdateViewModel.ShiireJissekis[shiiresCounter].NonyuSu - ShiireJissekis[shiiresCounter].NonyuSu;
 
-                // 注文残変動
+                // 処理２－４：注文残、倉庫在庫数を変動する
                 queriedMeisais[shiiresCounter].ChumonZan -= transNum;
-                // 在庫数変動
                 transSokoZaikos[shiiresCounter].SokoZaikoSu += transNum;
 
+                // 処理２－５：注文実績明細を更新する(更新待機)(倉庫在庫は後に更新待機する)
                 _context.ChumonJissekiMeisai.Update(queriedMeisais[shiiresCounter]);
             }
 
-            // 変動後の注文実績明細は後ほど行うDB更新で反映される
-            // 変動後の仕入実績、倉庫在庫を格納したViewModelを作成し渡す
+            // 変動後の仕入実績、倉庫在庫を格納した更新用ViewModelを作成し渡す
             return new ShiireUpdateViewModel()
             {
                 ShiireJissekis = transShiireJissekis,

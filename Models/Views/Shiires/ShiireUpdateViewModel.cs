@@ -2,7 +2,7 @@
 
 namespace ConvenienceMVC.Models.Views.Shiires
 {
-    // 仕入実績更新用ViewModel
+    // 仕入実績、倉庫在庫更新用ViewModel
     public class ShiireUpdateViewModel
     {
         public IList<ShiireJisseki> ShiireJissekis { get; set; }

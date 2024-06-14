@@ -28,7 +28,7 @@ namespace ConvenienceMVC.Models.Interfaces.Shiires
 
         // 注文実績明細検索
         public Task<ChumonJissekiMeisai?> ChumonJissekiMeisaiQuery(string inChumonId);
-        // 注文残倉庫在庫数変動
+        // 注文残、倉庫在庫数変動
         public Task<ShiireUpdateViewModel> ChumonZanBalance(ShiireUpdateViewModel inShiireViewModel);
     }
 }

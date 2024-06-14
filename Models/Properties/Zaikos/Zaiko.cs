@@ -4,10 +4,13 @@ using ConvenienceMVC_Context;
 
 namespace ConvenienceMVC.Models.Properties.Zaikos
 {
+    // 在庫
     public class Zaiko : IZaiko
     {
+        // DBコンテキスト
         private readonly ConvenienceMVCContext _context;
 
+        // コンストラクタ
         public Zaiko(ConvenienceMVCContext context)
         {
             _context = context;

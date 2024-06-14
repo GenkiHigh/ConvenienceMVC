@@ -1,6 +1,6 @@
 ﻿@using ConvenienceMVC.Models.Views.Zaikos
 
-@model ZaikoViewModel
+@model ZaikoSearchViewModel
 @{
     ViewData["Title"] = "Search";
     var FirstZaiko = Model.SokoZaikos.FirstOrDefault();
@@ -48,12 +48,12 @@
                     @for (int i = 0; i < Model.TableList.Count; i++)
                     {
                         <optgroup label="@Model.TableList[i]">
-                            @for (int j = 0; j < Model.LabelNumList[i]; j++)
+                            @for (int j = 0; j < Model.LabelPunctuationList[i]; j++)
                             {
                                 <option value="@Model.SelectCodeList[num + j].Item1">@Model.SelectCodeList[num + j].Item1</option>
                             }
                         </optgroup>
-                        num += Model.LabelNumList[i];
+                        num += Model.LabelPunctuationList[i];
                     }
                 </select>
             </div>

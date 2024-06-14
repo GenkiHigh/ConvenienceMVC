@@ -5,7 +5,7 @@ using System.ComponentModel;
 
 namespace ConvenienceMVC.Models.Views.Zaikos
 {
-    public class ZaikoViewModel
+    public class ZaikoSearchViewModel
     {
         [DisplayName("ソートキー")]
         public IList<string?>? KeyEventDataList { get; set; }
@@ -16,7 +16,7 @@ namespace ConvenienceMVC.Models.Views.Zaikos
         [DisplayName("絞り込み(or)")]
         public IList<string>? SetCodesList { get; set; }
 
-        public IList<int>? LabelNumList { get; set; }
+        public IList<int>? LabelPunctuationList { get; set; }
 
         public IList<SokoZaiko> SokoZaikos { get; set; }
 

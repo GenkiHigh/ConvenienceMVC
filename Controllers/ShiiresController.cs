@@ -14,17 +14,29 @@ using Newtonsoft.Json;
 
 namespace ConvenienceMVC.Controllers
 {
-    // 仕入コントローラー
+    /// <summary>
+    /// 仕入コントローラー
+    /// </summary>
     public class ShiiresController : Controller
     {
-        // DBコンテキスト
+        /// <summary>
+        /// DBコンテキスト
+        /// </summary>
         private readonly ConvenienceMVCContext _context;
-        // 基底サービスインターフェース
+        /// <summary>
+        /// 基底サービスインターフェース
+        /// </summary>
         private readonly IDefineService DefineService;
-        // 仕入サービスインターフェース
+        /// <summary>
+        /// 仕入サービスインターフェース
+        /// </summary>
         private readonly IShiireService ShiireService;
 
-        // コンストラクタ
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="context">DBコンテキスト</param>
+        /// <param name="defineService">基底サービス</param>
         public ShiiresController(ConvenienceMVCContext context, DefineService defineService)
         {
             // DBコンテキストを設定
@@ -35,7 +47,10 @@ namespace ConvenienceMVC.Controllers
             DefineService = defineService;
         }
 
-        // Index(初期設定)
+        /// <summary>
+        /// Index(初期設定)
+        /// </summary>
+        /// <returns>検索画面に移動</returns>
         public IActionResult Index()
         {
             // 処理１：ログイン状況を確認する
@@ -53,14 +68,20 @@ namespace ConvenienceMVC.Controllers
             // 検索画面に移動
             return RedirectToAction("Search");
         }
-        // Menu(初期設定)
+        /// <summary>
+        /// Menu(初期設定)
+        /// </summary>
+        /// <returns>メニュー画面に移動</returns>
         public IActionResult Menu()
         {
             // メニュー画面に移動する
             return RedirectToAction("Index", "Menus");
         }
 
-        // 仕入実績、倉庫在庫検索(初期設定)
+        /// <summary>
+        /// 仕入実績、倉庫在庫検索(初期設定)
+        /// </summary>
+        /// <returns>検索画面に移動</returns>
         public IActionResult Search()
         {
             // 処理１：仕入実績、倉庫在庫検索用ViewModelを設定する
@@ -72,8 +93,12 @@ namespace ConvenienceMVC.Controllers
             // 設定した仕入実績、倉庫在庫検索用ViewModelを渡しながら検索画面に移動する
             return View(getShiireSearchViewModel);
         }
-        // 仕入実績、倉庫在庫検索(検索実行)
-        // inShiireSearchViewModel：検索画面で入力されたデータを格納した検索用ViewModel
+        /// <summary>
+        /// 仕入実績、倉庫在庫検索(検索実行)
+        /// </summary>
+        /// <param name="inShiireSearchViewModel">検索画面で入力されたデータを格納した検索用ViewModel</param>
+        /// <returns>更新画面に移動</returns>
+        /// <exception cref="Exception">Postデータエラー</exception>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Search(ShiireSearchViewModel inShiireSearchViewModel)
@@ -109,16 +134,23 @@ namespace ConvenienceMVC.Controllers
             return View("Update", queriedShiireViewModel);
         }
 
-        // 仕入実績、倉庫在庫更新(初期設定)
-        // inShiireUpdateViewModel：検索画面で検索して取得した、又は新規作成したデータを格納した更新用ViewModel
+        /// <summary>
+        /// 仕入実績、倉庫在庫更新(初期設定)
+        /// </summary>
+        /// <param name="inShiireUpdateViewModel">検索画面で検索して取得した、又は新規作成したデータを格納した更新用ViewModel</param>
+        /// <returns>更新画面に移動</returns>
         public IActionResult Update(ShiireUpdateViewModel inShiireUpdateViewModel)
         {
             // 更新用ViewModelを渡しながら更新画面に移動する
             return View(inShiireUpdateViewModel);
         }
-        // 仕入実績、倉庫在庫更新(更新実行)
-        // id：オーバーロード用
-        // inShiireUpdateViewModel：更新画面で入力されたデータを格納した更新用ViewModel
+        /// <summary>
+        /// 仕入実績、倉庫在庫更新(更新実行)
+        /// </summary>
+        /// <param name="id">オーバーロード用</param>
+        /// <param name="inShiireUpdateViewModel">更新画面で入力されたデータを格納した更新用ViewModel</param>
+        /// <returns>再度更新画面に移動</returns>
+        /// <exception cref="Exception">Postデータエラー</exception>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Update(int id, ShiireUpdateViewModel inShiireUpdateViewModel)
@@ -170,7 +202,10 @@ namespace ConvenienceMVC.Controllers
             return View("Update", updateShiireViewModel);
         }
 
-        // 仕入実績、倉庫在庫検索用ViewModel設定
+        /// <summary>
+        /// 仕入実績、倉庫在庫検索用ViewModel設定
+        /// </summary>
+        /// <returns>検索用ViewModel</returns>
         private ShiireSearchViewModel SetShiireSearchViewModel()
         {
             // 処理１：注文残が全て0の仕入実績を削除する
@@ -210,7 +245,9 @@ namespace ConvenienceMVC.Controllers
             };
         }
 
-        // オブジェクト保存
+        /// <summary>
+        /// オブジェクト保存
+        /// </summary>
         private void KeepObjects()
         {
             // シリアライズしてデータ保存
@@ -221,7 +258,9 @@ namespace ConvenienceMVC.Controllers
             TempData["ShiireJissekis"] = JsonConvert.SerializeObject(ShiireService.Shiire.ShiireJissekis, settings);
             TempData["SokoZaikos"] = JsonConvert.SerializeObject(ShiireService.Shiire.SokoZaikos, settings);
         }
-        // オブジェクト復元
+        /// <summary>
+        /// オブジェクト復元
+        /// </summary>
         private void GetObjects()
         {
             // デシリアライズしてデータ復元

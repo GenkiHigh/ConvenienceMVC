@@ -12,17 +12,29 @@ using Newtonsoft.Json;
 
 namespace ConvenienceMVC.Controllers
 {
-    // 注文コントローラー
+    /// <summary>
+    /// 注文コントローラー
+    /// </summary>
     public class ChumonsController : Controller
     {
-        // DBコンテキスト
+        /// <summary>
+        /// DBコンテキスト
+        /// </summary>
         private readonly ConvenienceMVCContext _context;
-        // 基底サービスインターフェース
+        /// <summary>
+        /// 基底サービスインターフェース
+        /// </summary>
         private readonly IDefineService DefineService;
-        // 注文サービスインターフェース
+        /// <summary>
+        /// 注文サービスインターフェース
+        /// </summary>
         private readonly IChumonService ChumonService;
 
-        // コンストラクタ
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="context">DBコンテキスト</param>
+        /// <param name="defineService">基底サービス</param>
         public ChumonsController(ConvenienceMVCContext context, DefineService defineService)
         {
             // DBコンテキスト設定
@@ -33,7 +45,10 @@ namespace ConvenienceMVC.Controllers
             DefineService = defineService;
         }
 
-        // Index(初期設定)
+        /// <summary>
+        /// Index(初期設定)
+        /// </summary>
+        /// <returns>検索画面に移動</returns>
         public IActionResult Index()
         {
             // 処理１：ログイン状況を確認する
@@ -51,14 +66,20 @@ namespace ConvenienceMVC.Controllers
             // 検索画面に移動
             return RedirectToAction("Search");
         }
-        // 総合メニュー移動
+        /// <summary>
+        /// 総合メニュー移動
+        /// </summary>
+        /// <returns>メニュー画面に移動</returns>
         public IActionResult Menu()
         {
             // メニュー画面に移動する
             return RedirectToAction("Index", "Menus");
         }
 
-        // 注文実績検索(初期設定)
+        /// <summary>
+        /// 注文実績検索(初期設定)
+        /// </summary>
+        /// <returns>検索画面に移動</returns>
         public IActionResult Search()
         {
             // 処理１：注文実績検索用ViewModelを設定する
@@ -70,8 +91,12 @@ namespace ConvenienceMVC.Controllers
             // 設定した注文実績検索用ViewModelを渡しながら検索画面に移動する
             return View(getChumonSearchViewModel);
         }
-        // 注文実績検索(検索実行)
-        // inChumonSerachViewModel：検索画面で入力されたデータを格納した注文実績検索用ViewModel
+        /// <summary>
+        /// 注文実績検索(検索実行)
+        /// </summary>
+        /// <param name="inChumonSearchViewModell">検索画面で入力されたデータを格納した注文実績検索用ViewModel</param>
+        /// <returns>更新画面に移動</returns>
+        /// <exception cref="Exception">Postデータエラー</exception>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Search(ChumonSearchViewModel inChumonSearchViewModell)
@@ -108,16 +133,23 @@ namespace ConvenienceMVC.Controllers
             return View("Update", queriedChumonUpdateViewModel);
         }
 
-        // 注文実績更新(初期設定)
-        // inChumonUpdateViewModel：検索画面で検索して取得した、又は新規作成した注文実績を格納した注文実績更新用ViewModel
+        /// <summary>
+        /// 注文実績更新(初期設定)
+        /// </summary>
+        /// <param name="inChumonUpdateViewModel">検索画面で検索して取得した、又は新規作成した注文実績を格納した注文実績更新用ViewModel</param>
+        /// <returns>更新画面に移動</returns>
         public IActionResult Update(ChumonUpdateViewModel inChumonUpdateViewModel)
         {
             // 注文実績更新用ViewModelを渡しながら更新画面に移動する
             return View(inChumonUpdateViewModel);
         }
-        // 注文実績更新(更新実行)
-        // id：オーバーロード用
-        // inChumonUpdateViewModel：更新画面で入力されたデータを格納した注文実績更新用ViewModel
+        /// <summary>
+        /// 注文実績更新(更新実行)
+        /// </summary>
+        /// <param name="id">オーバーロード用</param>
+        /// <param name="inChumonUpdateViewModel">更新画面で入力されたデータを格納した注文実績更新用ViewModel</param>
+        /// <returns>再度更新画面に移動</returns>
+        /// <exception cref="Exception">Postデータエラー</exception>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Update(int id, ChumonUpdateViewModel inChumonUpdateViewModel)
@@ -166,7 +198,10 @@ namespace ConvenienceMVC.Controllers
             return View("Update", updateChumonViewModel);
         }
 
-        // 注文実績検索用ViewModel設定
+        /// <summary>
+        /// 注文実績検索用ViewModel設定
+        /// </summary>
+        /// <returns>更新用ViewModel</returns>
         private ChumonSearchViewModel SetChumonSearchViewModel()
         {
             // 処理１：仕入先コードリストを設定する
@@ -190,7 +225,9 @@ namespace ConvenienceMVC.Controllers
             };
         }
 
-        // オブジェクト保存
+        /// <summary>
+        /// オブジェクト保存
+        /// </summary>
         private void KeepObject()
         {
             // シリアライズしてデータ保存
@@ -200,7 +237,9 @@ namespace ConvenienceMVC.Controllers
             };
             TempData["ChumonJisseki"] = JsonConvert.SerializeObject(ChumonService.Chumon.ChumonJisseki, settings);
         }
-        // オブジェクト復元
+        /// <summary>
+        /// オブジェクト復元
+        /// </summary>
         private void GetObject()
         {
             // デシリアライズしてデータ復元

@@ -13,106 +13,110 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" name="id" value="1"></input>
     <div class="row">
-        <div class="col-md-4">
-            <div class="form-group">
-                <label asp-for="@FirstShiire.ChumonId" class="control-label"></label>
-                <input asp-for="@FirstShiire.ChumonId" class="form-control" tabindex="-1" disabled></input>
-            </div>
-            <div class="form-group">
-                <label asp-for="@FirstShiire.ChumonJissekiMeisai.ChumonJisseki.ChumonDate" class="control-label"></label>
-                <input asp-for="@FirstShiire.ChumonJissekiMeisai.ChumonJisseki.ChumonDate" class="form-control" tabindex="-1" disabled></input>
-            </div>
-            <div class="form-group">
-                <label asp-for="@FirstShiire.ShiireDate" class="control-label"></label>
-                <input asp-for="@FirstShiire.ShiireDate" class="form-control" tabindex="-1" disabled></input>
-            </div>
-            <div class="form-group">
-                <label asp-for="@FirstShiire.SeqByShiireDate" class="control-label"></label>
-                <input asp-for="@FirstShiire.SeqByShiireDate" class="form-control" tabindex="-1" disabled></input>
-            </div>
-            <div class="form-group">
-                <label asp-for="@FirstShiire.ShiireSakiId" class="control-label"></label>
-                <input asp-for="@FirstShiire.ShiireSakiId" class="form-control" tabindex="-1" disabled></input>
-            </div>
-            <div class="form-group">
-                <label asp-for="@FirstShiire.ChumonJissekiMeisai.ChumonJisseki.ShiireSakiMaster.ShiireSakiKaisya" class="control-label"></label>
-                <input asp-for="@FirstShiire.ChumonJissekiMeisai.ChumonJisseki.ShiireSakiMaster.ShiireSakiKaisya" class="form-control" tabindex="-1" disabled></input>
+        <div class="col-md-6">
+            <div class="container">
+                <table class="table">
+                    <tr>
+                        <th><label asp-for="@FirstShiire.ChumonId" class="control-label"></label></th>
+                        <th><input asp-for="@FirstShiire.ChumonId" class="form-control" tabindex="-1" disabled></input></th>
+                    </tr>
+                    <tr>
+                        <th><label asp-for="@FirstShiire.ChumonJissekiMeisai.ChumonJisseki.ChumonDate" class="control-label"></label></th>
+                        <th><input asp-for="@FirstShiire.ChumonJissekiMeisai.ChumonJisseki.ChumonDate" class="form-control" tabindex="-1" disabled></input></th>
+                    </tr>
+                    <tr>
+                        <th><label asp-for="@FirstShiire.ShiireDate" class="control-label"></label></th>
+                        <th><input asp-for="@FirstShiire.ShiireDate" class="form-control" tabindex="-1" disabled></input></th>
+                    </tr>
+                    <tr>
+                        <th><label asp-for="@FirstShiire.SeqByShiireDate" class="control-label"></label></th>
+                        <th><input asp-for="@FirstShiire.SeqByShiireDate" class="form-control" tabindex="-1" disabled></input></th>
+                    </tr>
+                    <tr>
+                        <th><label asp-for="@FirstShiire.ShiireSakiId" class="control-label"></label></th>
+                        <th><input asp-for="@FirstShiire.ShiireSakiId" class="form-control" tabindex="-1" disabled></input></th>
+                    </tr>
+                    <tr>
+                        <th><label asp-for="@FirstShiire.ChumonJissekiMeisai.ChumonJisseki.ShiireSakiMaster.ShiireSakiKaisya" class="control-label"></label></th>
+                        <th><input asp-for="@FirstShiire.ChumonJissekiMeisai.ChumonJisseki.ShiireSakiMaster.ShiireSakiKaisya" class="form-control" tabindex="-1" disabled></input></th>
+                    </tr>
+                </table>
             </div>
         </div>
-    </div>
 
-    <div class="container">
-        <table class="table">
-            <thead>
-                <tr>
-                    <input asp-for="@Model.ShiireJissekis[0].Version" type="hidden"></input>
-                    <input asp-for="@Model.SokoZaikos[0].Version" type="hidden"></input>
-                    <th>
-                        <label asp-for="@FirstShiire.ShiirePrdId" class="control-label"></label>
-                    </th>
-                    <th>
-                        <label asp-for="@FirstShiire.ChumonJissekiMeisai.ShiireMaster.ShiirePrdName" class="control-label"></label>
-                    </th>
-                    <th>
-                        <label asp-for="@FirstShiire.ChumonJissekiMeisai.ChumonZan" class="control-label"></label>
-                    </th>
-                    <th>
-                        <label asp-for="@FirstShiire.NonyuSu" class="control-label"></label>
-                    </th>
-                    <th>
-                        <label asp-for="@FirstSoko.SokoZaikoSu" class="control-label"></label>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                @for (int i = 0; i < Model.ShiireJissekis.Count; i++)
-                {
-                    // 仕入実績の要素を追加
-                    <input asp-for="@Model.ShiireJissekis[i].ChumonId" type="hidden"></input>
-                    <input asp-for="@Model.ShiireJissekis[i].ShiireDate" type="hidden"></input>
-                    <input asp-for="@Model.ShiireJissekis[i].SeqByShiireDate" type="hidden"></input>
-                    <input asp-for="@Model.ShiireJissekis[i].ShiireDateTime" type="hidden"></input>
-                    <input asp-for="@Model.ShiireJissekis[i].ShiireSakiId" type="hidden"></input>
-                    <input asp-for="@Model.ShiireJissekis[i].ShiirePrdId" type="hidden"></input>
-                    <input asp-for="@Model.ShiireJissekis[i].ShohinId" type="hidden"></input>
-                    <input asp-for="@Model.ShiireJissekis[i].UserId" type="hidden"></input>
-                    // 倉庫在庫の要素を追加
-                    <input asp-for="@Model.SokoZaikos[i].ShiireSakiId" type="hidden"></input>
-                    <input asp-for="@Model.SokoZaikos[i].ShiirePrdId" type="hidden"></input>
-                    <input asp-for="@Model.SokoZaikos[i].ShohinId" type="hidden"></input>
-                    <input asp-for="@Model.SokoZaikos[i].SokoZaikoCaseSu" type="hidden"></input>
-                    <input asp-for="@Model.SokoZaikos[i].LastShiireDate" type="hidden"></input>
-                    <input asp-for="@Model.SokoZaikos[i].LastDeliveryDate" type="hidden"></input>
+        <div class="container">
+            <table class="table">
+                <thead>
                     <tr>
+                        <input asp-for="@Model.ShiireJissekis[0].Version" type="hidden"></input>
+                        <input asp-for="@Model.SokoZaikos[0].Version" type="hidden"></input>
                         <th>
-                            <input asp-for="@Model.ShiireJissekis[i].ShiirePrdId" class="form-control" tabindex="-1" disabled></input>
+                            <label asp-for="@FirstShiire.ShiirePrdId" class="control-label"></label>
                         </th>
                         <th>
-                            <input asp-for="@Model.ShiireJissekis[i].ChumonJissekiMeisai.ShiireMaster.ShiirePrdName" class="form-control" tabindex="-1" disabled></input>
+                            <label asp-for="@FirstShiire.ChumonJissekiMeisai.ShiireMaster.ShiirePrdName" class="control-label"></label>
                         </th>
                         <th>
-                            <input asp-for="@Model.ShiireJissekis[i].ChumonJissekiMeisai.ChumonZan" class="form-control" tabindex="-1" disabled></input>
+                            <label asp-for="@FirstShiire.ChumonJissekiMeisai.ChumonZan" class="control-label"></label>
                         </th>
                         <th>
-                            <input asp-for="@Model.ShiireJissekis[i].NonyuSu" class="form-control" tabindex="1"></input>
-                            <span asp-validation-for="ShiireJissekis[i].NonyuSu" class="text-danger"></span>
+                            <label asp-for="@FirstShiire.NonyuSu" class="control-label"></label>
                         </th>
                         <th>
-                            <input asp-for="@Model.SokoZaikos[i].SokoZaikoSu" class="form-control" tabindex="-1" readonly></input>
+                            <label asp-for="@FirstSoko.SokoZaikoSu" class="control-label"></label>
                         </th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-    <div class="form-group">
-        <input type="submit" value="Update" class="btn btn-primary" id="notBarrageButton" tabindex="1" />
-    </div>
-    <p>
-        <div id="remark" class="@(Model.IsNormal??true ? "text-primary" : "text-danger")">
-            <b>@Model.Remark</b>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.ShiireJissekis.Count; i++)
+                    {
+                        // 仕入実績の要素を追加
+                        <input asp-for="@Model.ShiireJissekis[i].ChumonId" type="hidden"></input>
+                        <input asp-for="@Model.ShiireJissekis[i].ShiireDate" type="hidden"></input>
+                        <input asp-for="@Model.ShiireJissekis[i].SeqByShiireDate" type="hidden"></input>
+                        <input asp-for="@Model.ShiireJissekis[i].ShiireDateTime" type="hidden"></input>
+                        <input asp-for="@Model.ShiireJissekis[i].ShiireSakiId" type="hidden"></input>
+                        <input asp-for="@Model.ShiireJissekis[i].ShiirePrdId" type="hidden"></input>
+                        <input asp-for="@Model.ShiireJissekis[i].ShohinId" type="hidden"></input>
+                        <input asp-for="@Model.ShiireJissekis[i].UserId" type="hidden"></input>
+                        // 倉庫在庫の要素を追加
+                        <input asp-for="@Model.SokoZaikos[i].ShiireSakiId" type="hidden"></input>
+                        <input asp-for="@Model.SokoZaikos[i].ShiirePrdId" type="hidden"></input>
+                        <input asp-for="@Model.SokoZaikos[i].ShohinId" type="hidden"></input>
+                        <input asp-for="@Model.SokoZaikos[i].SokoZaikoCaseSu" type="hidden"></input>
+                        <input asp-for="@Model.SokoZaikos[i].LastShiireDate" type="hidden"></input>
+                        <input asp-for="@Model.SokoZaikos[i].LastDeliveryDate" type="hidden"></input>
+                        <tr>
+                            <th>
+                                <input asp-for="@Model.ShiireJissekis[i].ShiirePrdId" class="form-control" tabindex="-1" disabled></input>
+                            </th>
+                            <th>
+                                <input asp-for="@Model.ShiireJissekis[i].ChumonJissekiMeisai.ShiireMaster.ShiirePrdName" class="form-control" tabindex="-1" disabled></input>
+                            </th>
+                            <th>
+                                <input asp-for="@Model.ShiireJissekis[i].ChumonJissekiMeisai.ChumonZan" class="form-control" tabindex="-1" disabled></input>
+                            </th>
+                            <th>
+                                <input asp-for="@Model.ShiireJissekis[i].NonyuSu" class="form-control" tabindex="1"></input>
+                                <span asp-validation-for="ShiireJissekis[i].NonyuSu" class="text-danger"></span>
+                            </th>
+                            <th>
+                                <input asp-for="@Model.SokoZaikos[i].SokoZaikoSu" class="form-control" tabindex="-1" readonly></input>
+                            </th>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
-    </p>
+        <div class="form-group">
+            <input type="submit" value="Update" class="btn btn-primary" id="notBarrageButton" tabindex="1" />
+        </div>
+        <p>
+            <div id="remark" class="@(Model.IsNormal??true ? "text-primary" : "text-danger")">
+                <b>@Model.Remark</b>
+            </div>
+        </p>
+    </div>
 </form>
 
 <script src="/js/NotBarrage.js"></script>

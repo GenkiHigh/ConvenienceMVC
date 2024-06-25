@@ -4,6 +4,7 @@ using ConvenienceMVC.Models.Properties.Chumons;
 using ConvenienceMVC.Models.Views.Chumons;
 using ConvenienceMVC_Context;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 namespace ConvenienceMVC.Models.Services.Chumons
 {
@@ -33,6 +34,11 @@ namespace ConvenienceMVC.Models.Services.Chumons
             // 処理１：注文実績を検索する
             // 処理２：注文実績を設定する
             // 戻り値：検索結果、又は新規作成した注文実績を格納した注文実績更新用ViewModel
+
+            if (inShiireSakiId == null || inChumonDate == default)
+            {
+                throw new Exception("仕入先コード、注文日が正しく入力されていません。");
+            }
 
             // 処理１：注文実績を検索する
             ChumonJisseki queriedChumonJisseki = await Chumon.ChumonQuery(inShiireSakiId, inChumonDate);
@@ -77,9 +83,20 @@ namespace ConvenienceMVC.Models.Services.Chumons
             ChumonUpdateViewModel getChumonUpdateViewModel = inChumonUpdateViewModel;
             for (int meisaisCounter = 0; meisaisCounter < getChumonUpdateViewModel.ChumonJisseki.ChumonJissekiMeisais.Count; meisaisCounter++)
             {
+                // マイナス入力対応
+                if (getChumonUpdateViewModel.ChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonSu < 0)
+                {
+                    getChumonUpdateViewModel.ChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonSu = 0;
+                }
+                // 小数点対策
+                if (Regex.IsMatch(getChumonUpdateViewModel.ChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonSu.ToString(), @"\.\d{3,}"))
+                {
+                    throw new Exception("小数点三桁以上");
+                }
+
                 // 処理１－１：入力前の注文数と入力後の注文数を比較する
                 if (Chumon.ChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonSu !=
-                    getChumonUpdateViewModel.ChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonSu)
+                getChumonUpdateViewModel.ChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonSu)
                 {
                     // 変化したことを記憶する
                     isChange = true;
@@ -121,21 +138,26 @@ namespace ConvenienceMVC.Models.Services.Chumons
             // 戻り値：インクルード後の注文実績明細
 
             // 処理１：注文実績明細、仕入先マスタ、仕入マスタ、商品マスタをインクルードする
-            ChumonJisseki includeChumonJisseki = await _context.ChumonJisseki
-                .Where(ch => ch.ChumonId == inChumonJisseki.ChumonId && ch.ShiireSakiId == inChumonJisseki.ShiireSakiId)
-                .Include(chm => chm.ChumonJissekiMeisais)
-                .ThenInclude(shi => shi.ShiireMaster)
-                .ThenInclude(sho => sho.ShohinMaster)
-                .Include(shs => shs.ShiireSakiMaster)
+            ShiireSakiMaster includeShiireSakiMaster = await _context.ShiireSakiMaster
+                .Where(saki => saki.ShiireSakiId == inChumonJisseki.ShiireSakiId)
+                .Include(saki => saki.ShiireMasters)
+                .ThenInclude(sm => sm.ShohinMaster)
                 .FirstAsync();
+            ChumonJisseki queryChumonJisseki = inChumonJisseki;
+            queryChumonJisseki.ShiireSakiMaster = includeShiireSakiMaster;
+            for (int meisaisCounter = 0; meisaisCounter < queryChumonJisseki.ChumonJissekiMeisais.Count; meisaisCounter++)
+            {
+                queryChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ShiireMaster =
+                    queryChumonJisseki.ShiireSakiMaster.ShiireMasters[meisaisCounter];
+            }
 
             // 処理２：注文実績明細を商品コードでソートする
-            includeChumonJisseki.ChumonJissekiMeisais = await _context.ChumonJissekiMeisai
-                .Where(mei => mei.ChumonId == includeChumonJisseki.ChumonId)
-                .OrderBy(mei => mei.ShohinId).ToListAsync();
+            queryChumonJisseki.ChumonJissekiMeisais = queryChumonJisseki.ChumonJissekiMeisais
+                .Where(mei => mei.ChumonId == queryChumonJisseki.ChumonId)
+                .OrderBy(mei => mei.ShohinId).ToList();
 
             // インクルード後の注文実績を渡す
-            return includeChumonJisseki;
+            return queryChumonJisseki;
         }
     }
 }

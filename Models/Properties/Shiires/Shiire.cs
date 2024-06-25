@@ -150,7 +150,7 @@ namespace ConvenienceMVC.Models.Properties.Shiires
                 {
                     throw new Exception("既に更新されています。");
                 }
-                // 注文者と仕入者が同じ場合アベンド
+                // 仕入者が違う場合アベンド
                 if (isShiireJissekis[0].UserId != inShiireJissekis[0].UserId)
                 {
                     throw new Exception("仕入者が違います。");
@@ -177,6 +177,7 @@ namespace ConvenienceMVC.Models.Properties.Shiires
                 ChumonJisseki queriedChumonJisseki = await _context.ChumonJisseki
                     .Where(x => x.ChumonId == inShiireJissekis[0].ChumonId)
                     .FirstOrDefaultAsync();
+
                 if (queriedChumonJisseki == null)
                 {
                     throw new Exception("注文実績が存在しません。");
@@ -187,12 +188,25 @@ namespace ConvenienceMVC.Models.Properties.Shiires
                     throw new Exception("注文者と仕入者が同じです。");
                 }
 
-                // 処理２B：仕入実績を追加する
+                // 新規追加時の入力値が全て0の場合、追加しない
+                bool isAdd = false;
                 for (int shiiresCounter = 0; shiiresCounter < inShiireJissekis.Count; shiiresCounter++)
                 {
-                    inShiireJissekis[shiiresCounter].ShiireDateTime =
-                        DateTime.SpecifyKind(inShiireJissekis[shiiresCounter].ShiireDateTime, DateTimeKind.Utc);
-                    _context.ShiireJisseki.Add(inShiireJissekis[shiiresCounter]);
+                    if (inShiireJissekis[shiiresCounter].NonyuSu != 0)
+                    {
+                        isAdd = true;
+                        break;
+                    }
+                }
+                if (isAdd)
+                {
+                    // 処理２B：仕入実績を追加する
+                    for (int shiiresCounter = 0; shiiresCounter < inShiireJissekis.Count; shiiresCounter++)
+                    {
+                        inShiireJissekis[shiiresCounter].ShiireDateTime =
+                            DateTime.SpecifyKind(inShiireJissekis[shiiresCounter].ShiireDateTime, DateTimeKind.Utc);
+                        _context.ShiireJisseki.Add(inShiireJissekis[shiiresCounter]);
+                    }
                 }
 
                 // 処理３：仕入実績を設定する
@@ -298,14 +312,27 @@ namespace ConvenienceMVC.Models.Properties.Shiires
             // 処理１－２：見つからなかった場合
             else
             {
-                // 処理２B：倉庫在庫を追加する
+                // 新規追加時、入力値が全て0の場合、追加しない
+                bool isAdd = false;
                 for (int zaikosCounter = 0; zaikosCounter < inSokoZaikos.Count; zaikosCounter++)
                 {
-                    inSokoZaikos[zaikosCounter].SokoZaikoCaseSu =
-                        Math.Floor(inSokoZaikos[zaikosCounter].SokoZaikoSu / inSokoZaikos[zaikosCounter].ShiireMaster.ShiirePcsPerUnit);
-                    inSokoZaikos[zaikosCounter].LastDeliveryDate = DateOnly.FromDateTime(DateTime.Today);
+                    if (inSokoZaikos[zaikosCounter].SokoZaikoSu != 0)
+                    {
+                        isAdd = true;
+                        break;
+                    }
+                }
+                if (isAdd)
+                {
+                    // 処理２B：倉庫在庫を追加する
+                    for (int zaikosCounter = 0; zaikosCounter < inSokoZaikos.Count; zaikosCounter++)
+                    {
+                        inSokoZaikos[zaikosCounter].SokoZaikoCaseSu =
+                            Math.Floor(inSokoZaikos[zaikosCounter].SokoZaikoSu / inSokoZaikos[zaikosCounter].ShiireMaster.ShiirePcsPerUnit);
+                        inSokoZaikos[zaikosCounter].LastDeliveryDate = DateOnly.FromDateTime(DateTime.Today);
 
-                    _context.SokoZaiko.Add(inSokoZaikos[zaikosCounter]);
+                        _context.SokoZaiko.Add(inSokoZaikos[zaikosCounter]);
+                    }
                 }
                 // 処理２Bー１：追加後の倉庫在庫を倉庫在庫に設定する
                 SokoZaikos = inSokoZaikos;

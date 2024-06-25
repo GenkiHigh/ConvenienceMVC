@@ -11,14 +11,14 @@ namespace ConvenienceMVC.Models.Views.Zaikos
         public IList<string?>? KeyEventDataList { get; set; }
 
         [DisplayName("□昇順 / ■降順")]
-        public IList<bool> DescendingFlagList { get; set; }
+        public IList<bool>? DescendingFlagList { get; set; }
 
         [DisplayName("絞り込み(or)")]
         public IList<string>? SetCodesList { get; set; }
 
         public IList<int>? LabelPunctuationList { get; set; }
 
-        public IList<SokoZaiko> SokoZaikos { get; set; }
+        public IList<SokoZaiko>? SokoZaikos { get; set; }
 
         public IList<string> TableList = new List<string>()
         {

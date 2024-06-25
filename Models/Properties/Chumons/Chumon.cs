@@ -156,11 +156,23 @@ namespace ConvenienceMVC.Models.Properties.Chumons
             // 機能１－２：DBに注文実績が無い場合
             else
             {
-                // 機能２B：注文実績、注文実績明細を追加する
-                _context.ChumonJisseki.Add(inChumonJisseki);
-                foreach (ChumonJissekiMeisai meisai in inChumonJisseki.ChumonJissekiMeisais)
+                bool isAdd = false;
+                for (int meisaisCounter = 0; meisaisCounter < inChumonJisseki.ChumonJissekiMeisais.Count; meisaisCounter++)
                 {
-                    _context.ChumonJissekiMeisai.Add(meisai);
+                    if (inChumonJisseki.ChumonJissekiMeisais[meisaisCounter].ChumonSu != 0)
+                    {
+                        isAdd = true;
+                        break;
+                    }
+                }
+                if (isAdd)
+                {
+                    // 機能２B：注文実績、注文実績明細を追加する
+                    _context.ChumonJisseki.Add(inChumonJisseki);
+                    foreach (ChumonJissekiMeisai meisai in inChumonJisseki.ChumonJissekiMeisais)
+                    {
+                        _context.ChumonJissekiMeisai.Add(meisai);
+                    }
                 }
 
                 // 注文実績を設定する
@@ -191,7 +203,7 @@ namespace ConvenienceMVC.Models.Properties.Chumons
             string queriedChumonId = await _context.ChumonJisseki.AsNoTracking()
                 .OrderBy(x => x.ChumonId).Select(x => x.ChumonId).LastAsync();
             string selectChumonDate = inChumonDate.ToString("yyyyMMdd-");
-            string queriedChumonDate = queriedChumonId.Substring(0, 9);
+            string queriedChumonDate = queriedChumonId.Substring(0, queriedChumonId.Length - 3);
             string chumonNumber = queriedChumonId.Substring(queriedChumonId.Length - 3);
 
             // 機能１－１：選択された注文日で注文されていない場合、注文番号を"001"に設定する

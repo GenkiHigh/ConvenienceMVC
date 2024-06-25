@@ -10,7 +10,6 @@ namespace ConvenienceMVC.Models.Views.Shiires
     {
         [Column("chumon_code")]
         [DisplayName("注文コード")]
-        [Required]
         public string ChumonId { get; set; }
 
         public List<SelectListItem>? ChumonIds { get; set; }

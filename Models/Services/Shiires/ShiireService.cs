@@ -5,6 +5,7 @@ using ConvenienceMVC.Models.Properties.Shiires;
 using ConvenienceMVC.Models.Views.Shiires;
 using ConvenienceMVC_Context;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 namespace ConvenienceMVC.Models.Services.Shiires
 {
@@ -93,6 +94,17 @@ namespace ConvenienceMVC.Models.Services.Shiires
             bool isChange = false;
             for (int shiiresCounter = 0; shiiresCounter < getShiireUpdateViewModel.ShiireJissekis.Count; shiiresCounter++)
             {
+                // マイナス入力対応
+                if (getShiireUpdateViewModel.ShiireJissekis[shiiresCounter].NonyuSu < 0)
+                {
+                    getShiireUpdateViewModel.ShiireJissekis[shiiresCounter].NonyuSu = 0;
+                }
+                // 小数対策
+                if (Regex.IsMatch(getShiireUpdateViewModel.ShiireJissekis[shiiresCounter].NonyuSu.ToString(), @"\.\d{3,}"))
+                {
+                    throw new Exception("小数点三桁以上");
+                }
+
                 // 処理１－１：入力前と入力後を比較して変化しているか判定する
                 if (Shiire.ShiireJissekis[shiiresCounter].NonyuSu != getShiireUpdateViewModel.ShiireJissekis[shiiresCounter].NonyuSu)
                 {
@@ -124,7 +136,7 @@ namespace ConvenienceMVC.Models.Services.Shiires
             {
                 ShiireJissekis = Shiire.ShiireJissekis,
                 SokoZaikos = Shiire.SokoZaikos,
-                // 更新したかをはんていする
+                // 更新したかを判定する
                 IsNormal = isChange ? true : false,
                 // 表示する文字列
                 Remark = isChange ? "更新完了" : string.Empty,
@@ -142,17 +154,18 @@ namespace ConvenienceMVC.Models.Services.Shiires
             IList<ShiireJisseki> queryShiireJissekis = new List<ShiireJisseki>();
             foreach (ShiireJisseki shiire in inShiireJissekis)
             {
-                // 処理１－１：対応する注文実績明細、注文実績、仕入先マスタ、仕入マスタ、商品マスタをインクルードする
-                ShiireJisseki queryShiireJisseki = await _context.ShiireJisseki
-                    .Where(sj => sj.ChumonId == shiire.ChumonId && sj.ShiireDate == shiire.ShiireDate &&
-                    sj.SeqByShiireDate == shiire.SeqByShiireDate && sj.ShiireSakiId == shiire.ShiireSakiId &&
-                    sj.ShiirePrdId == shiire.ShiirePrdId)
-                    .Include(sj => sj.ChumonJissekiMeisai)
-                    .ThenInclude(mei => mei.ChumonJisseki)
+                //// 処理１－１：対応する注文実績明細、注文実績、仕入先マスタ、仕入マスタ、商品マスタをインクルードする
+                ChumonJissekiMeisai includeChumonJissekiMeisai = await _context.ChumonJissekiMeisai
+                    .Where(mei => mei.ChumonId == shiire.ChumonId && mei.ShiireSakiId == shiire.ShiireSakiId &&
+                    mei.ShiirePrdId == shiire.ShiirePrdId && mei.ShohinId == shiire.ShohinId)
+                    .Include(mei => mei.ChumonJisseki)
                     .ThenInclude(chu => chu.ShiireSakiMaster)
                     .ThenInclude(saki => saki.ShiireMasters)
                     .ThenInclude(sm => sm.ShohinMaster)
                     .FirstAsync();
+                ShiireJisseki queryShiireJisseki = shiire;
+                queryShiireJisseki.ChumonJissekiMeisai = includeChumonJissekiMeisai;
+
                 // 処理１－２：インクルード後仕入実績リストに追加する
                 queryShiireJissekis.Add(queryShiireJisseki);
             }
@@ -172,12 +185,14 @@ namespace ConvenienceMVC.Models.Services.Shiires
             foreach (SokoZaiko zaiko in inSokoZaikos)
             {
                 // 処理１－１：対応する仕入マスタ、商品マスタをインクルードする
-                SokoZaiko querySokoZaiko = await _context.SokoZaiko
-                    .Where(sk => sk.ShiireSakiId == zaiko.ShiireSakiId && sk.ShiirePrdId == zaiko.ShiirePrdId &&
-                    sk.ShohinId == zaiko.ShohinId)
-                    .Include(sk => sk.ShiireMaster)
-                    .ThenInclude(sm => sm.ShohinMaster)
+                ShiireMaster includeShiireMaster = await _context.ShiireMaster
+                    .Where(sm => sm.ShiireSakiId == zaiko.ShiireSakiId && sm.ShiirePrdId == zaiko.ShiirePrdId &&
+                    sm.ShohinId == zaiko.ShohinId)
+                    .Include(sm => sm.ShohinMaster)
                     .FirstAsync();
+                SokoZaiko querySokoZaiko = zaiko;
+                querySokoZaiko.ShiireMaster = includeShiireMaster;
+
                 // 処理１－２：インクルード後倉庫在庫リストに追加する
                 querySokoZaikos.Add(querySokoZaiko);
             }

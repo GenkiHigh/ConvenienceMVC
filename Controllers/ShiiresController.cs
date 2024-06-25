@@ -141,6 +141,7 @@ namespace ConvenienceMVC.Controllers
         /// <returns>更新画面に移動</returns>
         public IActionResult Update(ShiireUpdateViewModel inShiireUpdateViewModel)
         {
+            return RedirectToAction("Search");
             // 更新用ViewModelを渡しながら更新画面に移動する
             return View(inShiireUpdateViewModel);
         }
@@ -183,7 +184,7 @@ namespace ConvenienceMVC.Controllers
             else
             {
                 // 使用中のユーザーIDを設定
-                foreach (var shiire in getShiireUpdateViewModel.ShiireJissekis)
+                foreach (ShiireJisseki shiire in getShiireUpdateViewModel.ShiireJissekis)
                 {
                     shiire.UserId = queriedUserLog.UserId;
                 }
@@ -223,7 +224,11 @@ namespace ConvenienceMVC.Controllers
                 bool isRemove = true;
                 foreach (ChumonJissekiMeisai meisai in check.ChumonJissekiMeisais)
                 {
-                    if (meisai.ChumonZan != 0) isRemove = false;
+                    if (meisai.ChumonZan != 0)
+                    {
+                        isRemove = false;
+                        break;
+                    }
                 }
                 // 処理１－２－２：注文残が全て0の場合、対象データを削除する
                 if (isRemove) transList.Remove(check);

@@ -124,7 +124,7 @@ namespace ConvenienceMVC.Controllers
 
             // 処理３：注文実績を検索する
             ChumonUpdateViewModel queriedChumonUpdateViewModel = await ChumonService.ChumonSetting(
-                inChumonSearchViewModell.ShiireSakiId, DateOnly.FromDateTime(inChumonSearchViewModell.ChumonDate));
+                inChumonSearchViewModell.ShiireSakiId, DateOnly.FromDateTime((DateTime)inChumonSearchViewModell.ChumonDate));
 
             // 処理４：検索して取得した、又は新規作成した注文実績を保存する
             KeepObject();
@@ -140,8 +140,9 @@ namespace ConvenienceMVC.Controllers
         /// <returns>更新画面に移動</returns>
         public IActionResult Update(ChumonUpdateViewModel inChumonUpdateViewModel)
         {
-            // 注文実績更新用ViewModelを渡しながら更新画面に移動する
-            return View(inChumonUpdateViewModel);
+            return RedirectToAction("Search");
+            //// 注文実績更新用ViewModelを渡しながら更新画面に移動する
+            //return View(inChumonUpdateViewModel);
         }
         /// <summary>
         /// 注文実績更新(更新実行)
